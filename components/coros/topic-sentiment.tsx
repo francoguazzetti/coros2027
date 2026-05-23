@@ -22,14 +22,14 @@ export function TopicSentiment({ topics }: TopicSentimentProps) {
           <div key={index} className="space-y-1">
             <span className="text-sm text-foreground">{topic.topic}</span>
             {/* Positive bar */}
-            <div className="h-3 border border-border bg-background">
+            <div className="h-3 bg-background">
               <div 
                 className="h-full bg-coros-positive rounded-[3px]" 
                 style={{ width: `${Math.min(topic.positive * 10, 100)}%` }}
               />
             </div>
             {/* Negative bar */}
-            <div className="h-3 border border-border bg-background">
+            <div className="h-3 bg-background">
               <div 
                 className="h-full bg-coros-negative rounded-[3px]" 
                 style={{ width: `${Math.min(topic.negative * 10, 100)}%` }}
