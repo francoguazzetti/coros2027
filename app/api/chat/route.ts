@@ -13,6 +13,22 @@ export async function POST(req: Request) {
 
   const { messages, projectId } = await req.json()
 
+  if (!projectId) {
+    return new Response("projectId is required", { status: 400 })
+  }
+
+  // Verify the user has access to this project via project_members
+  const { data: membership } = await supabase
+    .from("project_members")
+    .select("id")
+    .eq("project_id", projectId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (!membership) {
+    return new Response("Forbidden", { status: 403 })
+  }
+
   // Define tools that query the database
   const tools = {
     getSentimentSummary: tool({
