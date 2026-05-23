@@ -40,9 +40,30 @@ export interface PostRow {
 /** Returns all projects the authenticated user is a member of */
 export async function getUserProjects(): Promise<Project[]> {
   const supabase = await createClient()
+  
+  // Get the current user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return []
+
+  // Get project_members entries for this user, then fetch the full projects
+  const { data: memberships, error: memberError } = await supabase
+    .from("project_members")
+    .select("project_id")
+    .eq("user_id", user.id)
+
+  if (memberError || !memberships) return []
+
+  const projectIds = memberships.map((m) => m.project_id)
+  if (projectIds.length === 0) return []
+
+  // Now fetch the actual project details
   const { data, error } = await supabase
     .from("projects")
     .select("id, name, description")
+    .in("id", projectIds)
     .order("created_at", { ascending: true })
 
   if (error || !data) return []
