@@ -34,8 +34,14 @@ export async function requestPasswordReset() {
 
   if (!user?.email) throw new Error('Not authenticated')
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  if (!siteUrl && process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_SITE_URL is not set')
+  }
+  const baseUrl = siteUrl || 'http://localhost:3000'
+
   const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
+    redirectTo: `${baseUrl}/auth/reset-password`,
   })
 
   if (error) throw error
@@ -290,6 +296,18 @@ export async function disableShareLink(projectId: string) {
 
   if (!user) throw new Error('Not authenticated')
 
+  // Verify caller has permission (owner or editor)
+  const { data: membership } = await supabase
+    .from('project_members')
+    .select('role')
+    .eq('project_id', projectId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!membership || !['owner', 'editor', 'admin'].includes(membership.role)) {
+    throw new Error('Not authorized')
+  }
+
   const { error } = await supabase
     .from('projects')
     .update({
@@ -305,6 +323,24 @@ export async function disableShareLink(projectId: string) {
 
 export async function updateShareRole(projectId: string, role: 'viewer' | 'editor') {
   const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('Not authenticated')
+
+  // Verify caller has permission (owner or editor)
+  const { data: membership } = await supabase
+    .from('project_members')
+    .select('role')
+    .eq('project_id', projectId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!membership || !['owner', 'editor', 'admin'].includes(membership.role)) {
+    throw new Error('Not authorized')
+  }
 
   const { error } = await supabase
     .from('projects')
