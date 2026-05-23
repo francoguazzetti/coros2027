@@ -6,11 +6,13 @@ import {
   getSentimentByTopic,
   getRecentPosts,
 } from "@/lib/data"
+import { getProfile, getUserRoleInProject } from "@/lib/actions/settings"
 import { CorosSidebar } from "@/components/coros/sidebar"
 import { SentimentStats } from "@/components/coros/sentiment-stats"
 import { TopicSentiment } from "@/components/coros/topic-sentiment"
 import { CommentList, type Comment } from "@/components/coros/comment-card"
 import { AIPanel } from "@/components/coros/ai-panel"
+import { ShareButton } from "@/components/share/share-button"
 
 const VIEWS = ["general", "redes-sociales", "diarios"] as const
 type View = (typeof VIEWS)[number]
@@ -53,17 +55,51 @@ export default async function ProjectDashboardPage({
   if (!user) redirect("/auth/login")
 
   // Load all data in parallel
-  const [projects, sentimentCounts, topicSentiments, recentPosts] =
+  const [projects, sentimentCounts, topicSentiments, recentPosts, profile, userRole] =
     await Promise.all([
       getUserProjects(),
       getSentimentCounts(projectId),
       getSentimentByTopic(projectId),
       getRecentPosts(projectId, 5),
+      getProfile(),
+      getUserRoleInProject(projectId),
     ])
 
   // Validate that the project exists and user has access
   const currentProject = projects.find((p) => p.id === projectId)
   if (!currentProject) notFound()
+
+  // Get full project data - try with share fields first, fallback without
+  let projectData: {
+    id: string
+    name: string
+    description?: string | null
+    share_token?: string | null
+    share_enabled?: boolean
+    share_role?: string | null
+  } | null = null
+
+  // Try with share columns (they may not exist yet)
+  const { data: fullProjectData, error: fullError } = await supabase
+    .from('projects')
+    .select('id, name, description, share_token, share_enabled, share_role')
+    .eq('id', projectId)
+    .single()
+
+  if (!fullError && fullProjectData) {
+    projectData = fullProjectData
+  } else {
+    // Fallback to basic project data if share columns don't exist
+    const { data: basicProjectData } = await supabase
+      .from('projects')
+      .select('id, name, description')
+      .eq('id', projectId)
+      .single()
+    
+    if (basicProjectData) {
+      projectData = { ...basicProjectData, share_token: null, share_enabled: false, share_role: null }
+    }
+  }
 
   // Build nav items with real hrefs
   const navItems = [
@@ -96,10 +132,26 @@ export default async function ProjectDashboardPage({
         projectName={currentProject.name}
         navItems={navItems}
         currentView={view}
+        profile={profile}
+        project={projectData}
+        userRole={userRole}
       />
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto border-r border-border p-8 pl-6">
+        {/* Header with Share Button */}
+        <div className="mx-auto max-w-2xl mb-6 flex items-center justify-between">
+          <h1 className="text-lg font-semibold text-foreground">{VIEW_LABELS[view as View]}</h1>
+          <ShareButton
+            projectId={projectId}
+            projectName={currentProject.name}
+            userRole={userRole}
+            shareToken={projectData?.share_token}
+            shareEnabled={projectData?.share_enabled}
+            shareRole={projectData?.share_role}
+          />
+        </div>
+
         <div className="mx-auto max-w-2xl space-y-8">
           <SentimentStats
             positives={sentimentCounts.positivo}
