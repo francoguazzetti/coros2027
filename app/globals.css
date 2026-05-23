@@ -139,3 +139,72 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Hover animations for interactive elements */
+@layer utilities {
+  .interactive-hover {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .interactive-hover:hover:not(:disabled) {
+    @apply transform scale-105;
+  }
+
+  .interactive-hover:active:not(:disabled) {
+    @apply scale-95;
+  }
+
+  .tooltip {
+    @apply relative inline-block;
+  }
+
+  .tooltip-text {
+    @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .tooltip:hover .tooltip-text {
+    @apply opacity-100;
+  }
+}

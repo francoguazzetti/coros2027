@@ -64,9 +64,13 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
                 key={index}
                 onClick={() => handleSuggestedQuestion(question.text)}
                 disabled={isLoading}
-                className="text-right text-sm text-foreground underline underline-offset-4 hover:text-foreground/80 disabled:opacity-50"
+                className="text-right text-sm text-foreground underline underline-offset-4 hover:text-foreground/80 disabled:opacity-50 transition-all duration-200 hover:scale-105 active:scale-95 relative group"
+                title={question.text}
               >
                 {question.text}
+                <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
+                  {question.text}
+                </span>
               </button>
             ))}
           </div>
@@ -105,7 +109,7 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="border-t border-border p-4">
-        <div className="flex items-center gap-2 border border-border bg-input px-3 py-2 rounded-[5px]">
+        <div className="flex items-center gap-2 border border-border bg-input px-3 py-2 rounded-[5px] transition-all duration-200 focus-within:ring-2 focus-within:ring-ring/50">
           <input
             type="text"
             value={input}
@@ -117,10 +121,14 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="text-foreground hover:text-foreground/80 disabled:opacity-50"
+            className="text-foreground hover:text-foreground/80 disabled:opacity-50 transition-all duration-200 hover:scale-110 active:scale-95 relative group"
             aria-label="Send message"
+            title="Send message"
           >
             <ArrowRight className="h-4 w-4" />
+            <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
+              Send
+            </span>
           </button>
         </div>
       </form>
