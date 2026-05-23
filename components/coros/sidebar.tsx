@@ -22,7 +22,9 @@ export function CorosSidebar({ projectName, navItems, currentView }: CorosSideba
     <aside className="flex h-full w-[200px] flex-col border-r border-border bg-background">
       {/* Header */}
       <div className="flex items-center justify-between py-4 px-4 pr-0">
-        <span className="text-sm font-bold text-foreground">Coro</span>
+        <Link href="/projects" className="text-sm font-bold text-foreground hover:text-foreground/80 transition-colors">
+          Coro
+        </Link>
         <span className="text-sm font-bold text-foreground">{projectName}</span>
       </div>
 
