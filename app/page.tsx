@@ -58,7 +58,7 @@ export default function DashboardPage() {
       />
 
       {/* Main Content - Sentiment Section */}
-      <main className="flex-1 overflow-auto border-r border-border p-8">
+      <main className="flex-1 overflow-auto border-r border-border p-8 pl-6">
         <div className="mx-auto max-w-2xl space-y-8">
           {/* Sentiment Stats */}
           <SentimentStats 
