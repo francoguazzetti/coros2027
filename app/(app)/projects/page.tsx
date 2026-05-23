@@ -77,24 +77,27 @@ export default function ProjectsPage() {
           })
         }
 
-        // Get user's projects
-        const { data: memberships } = await supabase
+        // Get user's projects via a single join — avoids RLS recursive self-join issue
+        const { data: memberships, error: membershipsError } = await supabase
           .from('project_members')
-          .select('project_id')
+          .select(`
+            project_id,
+            role,
+            projects (
+              id,
+              name,
+              description,
+              created_at
+            )
+          `)
           .eq('user_id', user.id)
 
         if (memberships && memberships.length > 0) {
-          const projectIds = memberships.map((m) => m.project_id)
+          const projectsData = memberships
+            .map((m) => m.projects as Project | null)
+            .filter((p): p is Project => p !== null)
 
-          const { data: projectsData } = await supabase
-            .from('projects')
-            .select('id, name, description, created_at')
-            .in('id', projectIds)
-            .order('created_at', { ascending: false })
-
-          if (projectsData) {
-            setProjects(projectsData)
-          }
+          setProjects(projectsData)
         }
       } finally {
         setLoading(false)
