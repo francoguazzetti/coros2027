@@ -4,45 +4,45 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.85 0 0);
+  --background: #FFF9F5;
   --foreground: oklch(0.1 0 0);
-  --card: oklch(0.95 0 0);
+  --card: #FFF9F5;
   --card-foreground: oklch(0.1 0 0);
-  --popover: oklch(0.95 0 0);
+  --popover: #FFF9F5;
   --popover-foreground: oklch(0.1 0 0);
   --primary: oklch(0.1 0 0);
-  --primary-foreground: oklch(0.95 0 0);
-  --secondary: oklch(0.75 0 0);
+  --primary-foreground: #FFF9F5;
+  --secondary: #FFF9F5;
   --secondary-foreground: oklch(0.1 0 0);
-  --muted: oklch(0.8 0 0);
+  --muted: #FFF9F5;
   --muted-foreground: oklch(0.4 0 0);
   --accent: oklch(0.6 0 0);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.5 0 0);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.1 0 0);
-  --input: oklch(1 0 0);
+  --input: #FFF9F5;
   --ring: oklch(0.3 0 0);
-  --chart-1: oklch(0.95 0 0);
-  --chart-2: oklch(0.75 0 0);
+  --chart-1: #FFF9F5;
+  --chart-2: #FFF9F5;
   --chart-3: oklch(0.5 0 0);
   --chart-4: oklch(0.3 0 0);
   --chart-5: oklch(0.1 0 0);
   --radius: 5px;
-  --sidebar: oklch(0.85 0 0);
+  --sidebar: #FFF9F5;
   --sidebar-foreground: oklch(0.1 0 0);
   --sidebar-primary: oklch(0.1 0 0);
-  --sidebar-primary-foreground: oklch(0.95 0 0);
-  --sidebar-accent: oklch(0.8 0 0);
+  --sidebar-primary-foreground: #FFF9F5;
+  --sidebar-accent: #FFF9F5;
   --sidebar-accent-foreground: oklch(0.1 0 0);
   --sidebar-border: oklch(0.1 0 0);
   --sidebar-ring: oklch(0.3 0 0);
   
   /* Coros-specific tokens */
   --coros-positive: #5A8247;
-  --coros-neutral: oklch(0.75 0 0);
+  --coros-neutral: #FFF9F5;
   --coros-negative: #B25252;
-  --coros-panel: oklch(0.85 0 0);
+  --coros-panel: #FFF9F5;
 }
 
 .dark {
@@ -65,8 +65,8 @@
   --border: oklch(0.4 0 0);
   --input: oklch(0.3 0 0);
   --ring: oklch(0.5 0 0);
-  --chart-1: oklch(0.95 0 0);
-  --chart-2: oklch(0.75 0 0);
+  --chart-1: #FFF9F5;
+  --chart-2: #FFF9F5;
   --chart-3: oklch(0.5 0 0);
   --chart-4: oklch(0.3 0 0);
   --chart-5: oklch(0.1 0 0);
@@ -81,7 +81,7 @@
   
   /* Coros-specific tokens */
   --coros-positive: oklch(0.3 0 0);
-  --coros-neutral: oklch(0.45 0 0);
+  --coros-neutral: #FFF9F5;
   --coros-negative: oklch(0.6 0 0);
   --coros-panel: oklch(0.25 0 0);
 }
