@@ -41,7 +41,11 @@ export function SettingsPopover({ profile, project, userRole }: SettingsPopoverP
   const [projectOpen, setProjectOpen] = useState(false)
   const [dataSourcesOpen, setDataSourcesOpen] = useState(false)
 
-  const isCreatorOrAdmin = userRole === 'owner' || userRole === 'editor' || profile.role === 'admin'
+  const isCreatorOrAdmin =
+    userRole === 'owner' ||
+    userRole === 'editor' ||
+    profile.role === 'admin' ||
+    profile.role === 'creator'
 
   const handleLogout = async () => {
     setOpen(false)

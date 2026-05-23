@@ -6,7 +6,7 @@ import {
   getSentimentByTopic,
   getRecentPosts,
 } from "@/lib/data"
-import { getProfile, getUserRoleInProject } from "@/lib/actions/settings"
+import { getUserRoleInProject } from "@/lib/actions/settings"
 import { CorosSidebar } from "@/components/coros/sidebar"
 import { SentimentStats } from "@/components/coros/sentiment-stats"
 import { TopicSentiment } from "@/components/coros/topic-sentiment"
@@ -54,16 +54,26 @@ export default async function ProjectDashboardPage({
   } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  // Load all data in parallel
-  const [projects, sentimentCounts, topicSentiments, recentPosts, profile, userRole] =
+  // Load all data in parallel — profile must include role for SettingsPopover visibility
+  const [projects, sentimentCounts, topicSentiments, recentPosts, userRole] =
     await Promise.all([
       getUserProjects(),
       getSentimentCounts(projectId),
       getSentimentByTopic(projectId),
       getRecentPosts(projectId, 5),
-      getProfile(),
       getUserRoleInProject(projectId),
     ])
+
+  // Fetch profile with role directly to guarantee it's present
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, role, can_create_projects')
+    .eq('id', user.id)
+    .single()
+
+  const profile = profileRow
+    ? { ...profileRow, email: profileRow.email ?? user.email ?? null }
+    : null
 
   // Validate that the project exists and user has access
   const currentProject = projects.find((p) => p.id === projectId)

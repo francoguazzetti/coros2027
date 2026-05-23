@@ -45,15 +45,18 @@ interface ShareDialogProps {
   shareRole?: string | null
 }
 
+interface MemberProfile {
+  id: string
+  email: string | null
+  full_name: string | null
+}
+
 interface Member {
   id: string
   user_id: string
   role: string
-  profiles: {
-    id: string
-    email: string | null
-    full_name: string | null
-  } | null
+  // Supabase join can return array or single object depending on the relationship
+  profiles: MemberProfile | MemberProfile[] | null
 }
 
 export function ShareDialog({
@@ -79,6 +82,12 @@ export function ShareDialog({
   const [copied, setCopied] = useState(false)
 
   const canManage = userRole === 'owner' || userRole === 'editor'
+
+  // Supabase joins can return profile as array or object — normalize to single
+  const getProfile = (member: Member): MemberProfile | null => {
+    if (!member.profiles) return null
+    return Array.isArray(member.profiles) ? member.profiles[0] ?? null : member.profiles
+  }
 
   useEffect(() => {
     if (open) {
@@ -239,7 +248,7 @@ export function ShareDialog({
             <ScrollArea className="h-[160px]">
               <div className="space-y-1 pr-4">
                 {members.map((member) => {
-                  const profile = member.profiles
+                  const profile = getProfile(member)
                   const initials = profile?.full_name
                     ? profile.full_name
                         .split(' ')
