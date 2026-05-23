@@ -22,18 +22,24 @@ export function TopicSentiment({ topics }: TopicSentimentProps) {
           <div key={index} className="space-y-1">
             <span className="text-sm text-foreground">{topic.topic}</span>
             {/* Positive bar */}
-            <div className="h-3 bg-background">
+            <div className="h-3 bg-background transition-all duration-200 hover:shadow-md relative group cursor-pointer">
               <div 
-                className="h-full bg-coros-positive rounded-[3px]" 
+                className="h-full bg-coros-positive rounded-[3px] transition-all duration-200" 
                 style={{ width: `${Math.min(topic.positive * 10, 100)}%` }}
               />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
+                Positive: {topic.positive}
+              </span>
             </div>
             {/* Negative bar */}
-            <div className="h-3 bg-background">
+            <div className="h-3 bg-background transition-all duration-200 hover:shadow-md relative group cursor-pointer">
               <div 
-                className="h-full bg-coros-negative rounded-[3px]" 
+                className="h-full bg-coros-negative rounded-[3px] transition-all duration-200" 
                 style={{ width: `${Math.min(topic.negative * 10, 100)}%` }}
               />
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
+                Negative: {topic.negative}
+              </span>
             </div>
           </div>
         ))}
