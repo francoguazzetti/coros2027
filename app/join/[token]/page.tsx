@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { createClient } from '@/lib/supabase/server'
 import { joinProjectByToken } from '@/lib/actions/settings'
 
@@ -16,27 +17,31 @@ export default async function JoinPage({
   } = await supabase.auth.getUser()
 
   if (!user) {
-    // Redirect to login with return URL
     redirect(`/login?next=/join/${token}`)
   }
 
+  let projectId: string | null = null
+  let joinError = false
+
   try {
     const result = await joinProjectByToken(token)
-
     if (result.success) {
-      if (result.alreadyMember) {
-        // Already a member, just redirect
-        redirect(`/projects/${result.projectId}/general`)
-      } else {
-        // Newly added, redirect to project
-        redirect(`/projects/${result.projectId}/general`)
-      }
+      projectId = result.projectId
     }
   } catch (error) {
-    // Invalid or disabled share link
-    redirect('/login?error=invalid_share_link')
+    // Re-throw redirect errors — never swallow them
+    if (isRedirectError(error)) throw error
+    joinError = true
   }
 
-  // Fallback redirect
+  // All redirects are outside the try/catch
+  if (joinError) {
+    redirect('/projects?error=invalid_share_link')
+  }
+
+  if (projectId) {
+    redirect(`/projects/${projectId}/general`)
+  }
+
   redirect('/projects')
 }
