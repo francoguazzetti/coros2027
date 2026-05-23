@@ -41,14 +41,40 @@ export default function ProjectsPage() {
         }
 
         // Get user profile
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('full_name, email, role, can_create_projects')
           .eq('id', user.id)
           .single()
 
         if (profileData) {
-          setProfile(profileData)
+          setProfile({
+            full_name: profileData.full_name ?? user.email ?? 'Usuario',
+            email: profileData.email ?? user.email ?? '',
+            role: profileData.role ?? 'viewer',
+            can_create_projects: profileData.can_create_projects ?? false,
+          })
+        } else {
+          // Profile row missing (trigger not yet run) — upsert a minimal row and use auth data
+          const fallbackName =
+            user.user_metadata?.full_name ??
+            user.email?.split('@')[0] ??
+            'Usuario'
+
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            full_name: fallbackName,
+            role: 'viewer',
+            can_create_projects: false,
+          })
+
+          setProfile({
+            full_name: fallbackName,
+            email: user.email ?? '',
+            role: 'viewer',
+            can_create_projects: false,
+          })
         }
 
         // Get user's projects
@@ -86,10 +112,11 @@ export default function ProjectsPage() {
     )
   }
 
+  // Should never be reached after the upsert fallback, but guard defensively
   if (!profile) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Error al cargar perfil</p>
+        <p className="text-sm text-muted-foreground">Redirigiendo...</p>
       </div>
     )
   }
