@@ -64,7 +64,7 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
                 key={index}
                 onClick={() => handleSuggestedQuestion(question.text)}
                 disabled={isLoading}
-                className="text-right text-sm text-foreground underline underline-offset-4 hover:text-foreground/80 disabled:opacity-50 transition-all duration-200 hover:scale-105 active:scale-95 relative group"
+                className="text-right text-sm text-foreground underline underline-offset-4 hover:text-foreground/80 disabled:opacity-50 transition-all duration-200 hover:scale-102 active:scale-98 relative group"
                 title={question.text}
               >
                 {question.text}

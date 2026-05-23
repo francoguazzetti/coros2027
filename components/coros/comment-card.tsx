@@ -12,13 +12,13 @@ interface CommentCardProps {
 
 export function CommentCard({ comment }: CommentCardProps) {
   return (
-    <div className="border border-border bg-background p-4 rounded-[5px]">
+    <div className="border border-border bg-background p-4 rounded-[5px] transition-all duration-200 hover:shadow-md hover:scale-[1.01] hover:-translate-y-1 cursor-pointer">
       <p className="text-sm text-foreground">{`"${comment.text}"`}</p>
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground">
           {comment.source} - {comment.sentiment} - {comment.topic}
         </span>
-        <span className="text-xs text-muted-foreground">{comment.analysisType}</span>
+        <span className="text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground">{comment.analysisType}</span>
       </div>
     </div>
   )
