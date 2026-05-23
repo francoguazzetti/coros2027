@@ -133,7 +133,7 @@ export async function getProject(projectId: string) {
 
   const { data, error } = await supabase
     .from('projects')
-    .select('*')
+    .select('id, name, description, created_by, share_token, share_enabled, share_role, created_at')
     .eq('id', projectId)
     .single()
 

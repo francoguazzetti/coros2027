@@ -16,7 +16,8 @@ interface Profile {
   id: string
   full_name: string | null
   email: string | null
-  role?: string
+  role?: string | null
+  can_create_projects?: boolean | null
 }
 
 interface Project {
@@ -45,7 +46,8 @@ export function SettingsPopover({ profile, project, userRole }: SettingsPopoverP
     userRole === 'owner' ||
     userRole === 'editor' ||
     profile.role === 'admin' ||
-    profile.role === 'creator'
+    profile.role === 'creator' ||
+    profile.can_create_projects === true
 
   const handleLogout = async () => {
     setOpen(false)

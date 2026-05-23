@@ -64,52 +64,27 @@ export default async function ProjectDashboardPage({
       getUserRoleInProject(projectId),
     ])
 
-  // Fetch profile with role directly to guarantee it's present
+  // Fetch profile with role — if null (no profile row), redirect defensively
   const { data: profileRow } = await supabase
     .from('profiles')
     .select('id, full_name, email, role, can_create_projects')
     .eq('id', user.id)
     .single()
 
-  const profile = profileRow
-    ? { ...profileRow, email: profileRow.email ?? user.email ?? null }
-    : null
+  if (!profileRow) redirect('/auth/login')
+
+  const profile = { ...profileRow, email: profileRow.email ?? user.email ?? null }
 
   // Validate that the project exists and user has access
   const currentProject = projects.find((p) => p.id === projectId)
   if (!currentProject) notFound()
 
-  // Get full project data - try with share fields first, fallback without
-  let projectData: {
-    id: string
-    name: string
-    description?: string | null
-    share_token?: string | null
-    share_enabled?: boolean
-    share_role?: string | null
-  } | null = null
-
-  // Try with share columns (they may not exist yet)
-  const { data: fullProjectData, error: fullError } = await supabase
+  // Fetch full project data including share columns (added via migration)
+  const { data: projectData } = await supabase
     .from('projects')
-    .select('id, name, description, share_token, share_enabled, share_role')
+    .select('id, name, description, created_by, share_token, share_enabled, share_role')
     .eq('id', projectId)
     .single()
-
-  if (!fullError && fullProjectData) {
-    projectData = fullProjectData
-  } else {
-    // Fallback to basic project data if share columns don't exist
-    const { data: basicProjectData } = await supabase
-      .from('projects')
-      .select('id, name, description')
-      .eq('id', projectId)
-      .single()
-    
-    if (basicProjectData) {
-      projectData = { ...basicProjectData, share_token: null, share_enabled: false, share_role: null }
-    }
-  }
 
   // Build nav items with real hrefs
   const navItems = [

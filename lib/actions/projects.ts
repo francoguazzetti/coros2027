@@ -111,15 +111,16 @@ export async function getProjectMembers(projectId: string) {
 
   const { data, error } = await supabase
     .from('project_members')
-    .select(
-      `
+    .select(`
       id,
       user_id,
       role,
-      added_at,
-      profiles:profiles(id, email, full_name)
-    `
-    )
+      profiles (
+        id,
+        full_name,
+        email
+      )
+    `)
     .eq('project_id', projectId)
 
   if (error) throw error
