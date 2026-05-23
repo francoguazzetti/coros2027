@@ -21,13 +21,15 @@ export function CorosSidebar({ projectName, navItems, currentView }: CorosSideba
   return (
     <aside className="flex h-full w-[200px] flex-col border-r border-border bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4">
-        <span className="text-sm font-medium text-foreground">Coro</span>
-        <span className="text-sm text-foreground">{projectName}</span>
+      <div className="flex items-center justify-between py-4 px-4 pr-0">
+        <Link href="/projects" className="text-sm font-bold text-foreground hover:text-foreground/80 transition-colors">
+          Coro
+        </Link>
+        <span className="text-sm font-bold text-foreground">{projectName}</span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col px-4 py-2">
+      <nav className="flex flex-1 flex-col px-4 py-2 pr-[13px]">
         {navItems.map((item, index) => {
           const isActive = item.isActive || item.href === currentView
           const isSection = !item.indent

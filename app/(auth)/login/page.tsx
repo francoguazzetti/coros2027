@@ -8,38 +8,44 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export default function SignUpPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [fullName, setFullName] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     const supabase = createClient()
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-          `${window.location.origin}/auth/callback`,
-        data: {
-          full_name: fullName,
-        },
-      },
     })
 
     if (error) {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push("/auth/sign-up-success")
+      // Fetch user role and redirect accordingly
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        if (profile?.role === 'admin') {
+          router.push('/admin')
+        } else {
+          router.push('/projects')
+        }
+      }
+      router.refresh()
     }
   }
 
@@ -49,26 +55,11 @@ export default function SignUpPage() {
         <div className="mb-8">
           <h1 className="text-xl font-medium text-foreground">Coro</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Crear una cuenta nueva
+            Iniciar sesión en tu cuenta
           </p>
         </div>
 
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName" className="text-sm text-foreground">
-              Nombre completo
-            </Label>
-            <Input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              className="border-border bg-input"
-              placeholder="Juan Pérez"
-            />
-          </div>
-
+        <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm text-foreground">
               Email
@@ -94,7 +85,6 @@ export default function SignUpPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
               className="border-border bg-input"
               placeholder="••••••••"
             />
@@ -109,17 +99,17 @@ export default function SignUpPage() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {loading ? "Creando cuenta..." : "Crear cuenta"}
+            {loading ? "Ingresando..." : "Ingresar"}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          ¿Ya tenés cuenta?{" "}
+          ¿No tenés cuenta?{" "}
           <Link
-            href="/auth/login"
+            href="/auth/sign-up"
             className="text-foreground underline underline-offset-4 hover:text-foreground/80"
           >
-            Iniciá sesión
+            Registrate
           </Link>
         </p>
       </div>

@@ -105,7 +105,7 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="border-t border-border p-4">
-        <div className="flex items-center gap-2 border border-border bg-input px-3 py-2">
+        <div className="flex items-center gap-2 border border-border bg-input px-3 py-2 rounded-[5px]">
           <input
             type="text"
             value={input}

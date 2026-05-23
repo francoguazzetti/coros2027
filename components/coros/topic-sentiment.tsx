@@ -18,27 +18,25 @@ export function TopicSentiment({ topics }: TopicSentimentProps) {
 
       {/* Topic Bars */}
       <div className="space-y-3">
-        {topics.map((topic, index) => {
-          const total = topic.positive + topic.negative
-          const positivePercent = total > 0 ? (topic.positive / total) * 100 : 50
-          const negativePercent = total > 0 ? (topic.negative / total) * 100 : 50
-
-          return (
-            <div key={index} className="flex items-center gap-4">
-              <span className="w-20 text-sm text-foreground">{topic.topic}</span>
-              <div className="flex h-4 flex-1 border border-border">
-                <div 
-                  className="h-full bg-coros-positive" 
-                  style={{ width: `${positivePercent}%` }}
-                />
-                <div 
-                  className="h-full bg-coros-negative" 
-                  style={{ width: `${negativePercent}%` }}
-                />
-              </div>
+        {topics.map((topic, index) => (
+          <div key={index} className="space-y-1">
+            <span className="text-sm text-foreground">{topic.topic}</span>
+            {/* Positive bar */}
+            <div className="h-3 bg-background">
+              <div 
+                className="h-full bg-coros-positive rounded-[3px]" 
+                style={{ width: `${Math.min(topic.positive * 10, 100)}%` }}
+              />
             </div>
-          )
-        })}
+            {/* Negative bar */}
+            <div className="h-3 bg-background">
+              <div 
+                className="h-full bg-coros-negative rounded-[3px]" 
+                style={{ width: `${Math.min(topic.negative * 10, 100)}%` }}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

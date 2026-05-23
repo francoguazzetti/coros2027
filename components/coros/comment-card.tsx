@@ -12,7 +12,7 @@ interface CommentCardProps {
 
 export function CommentCard({ comment }: CommentCardProps) {
   return (
-    <div className="border border-border bg-background p-4">
+    <div className="border border-border bg-background p-4 rounded-[5px]">
       <p className="text-sm text-foreground">{`"${comment.text}"`}</p>
       <div className="mt-2 flex items-center justify-between">
         <span className="text-xs text-muted-foreground">
