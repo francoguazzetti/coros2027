@@ -48,18 +48,17 @@ export async function getUserProjects(): Promise<Project[]> {
 
   if (!user) return []
 
-  // Get project_members entries for this user, then fetch the full projects
+  // SAFE: Query only the user's own memberships (no recursion)
   const { data: memberships, error: memberError } = await supabase
     .from("project_members")
     .select("project_id")
     .eq("user_id", user.id)
 
-  if (memberError || !memberships) return []
+  if (memberError || !memberships || memberships.length === 0) return []
 
   const projectIds = memberships.map((m) => m.project_id)
-  if (projectIds.length === 0) return []
 
-  // Now fetch the actual project details
+  // SAFE: Fetch projects by ID (no complex filtering)
   const { data, error } = await supabase
     .from("projects")
     .select("id, name, description")

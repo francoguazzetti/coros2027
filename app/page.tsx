@@ -1,31 +1,14 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import { getFirstProject } from "@/lib/data"
+'use client'
 
-export default async function RootPage() {
-  // Check auth first
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+export default function HomePage() {
+  const router = useRouter()
 
-  // Redirect to first project
-  const project = await getFirstProject()
+  useEffect(() => {
+    router.push('/projects')
+  }, [router])
 
-  if (!project) {
-    // Authenticated but no projects yet — show a simple placeholder
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">
-          No hay proyectos disponibles. Contactá al administrador.
-        </p>
-      </div>
-    )
-  }
-
-  redirect(`/projects/${project.id}/general`)
+  return null
 }
