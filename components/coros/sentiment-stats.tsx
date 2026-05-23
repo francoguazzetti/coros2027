@@ -18,7 +18,7 @@ export function SentimentStats({ positives, neutrals, negatives }: SentimentStat
       </h2>
 
       {/* Stats Cards */}
-      <div className="flex gap-4">
+      <div className="flex justify-between">
         <div className="flex h-24 w-28 flex-col items-center justify-center border border-border bg-coros-positive">
           <span className="text-xs text-foreground">Positivos</span>
           <span className="text-4xl font-light text-foreground">{positives}</span>
