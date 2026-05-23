@@ -1,8 +1,8 @@
 "use client"
 
-import { Settings } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { SettingsPopover } from "@/components/settings/settings-popover"
 
 interface NavItem {
   label: string
@@ -11,13 +11,36 @@ interface NavItem {
   indent?: boolean
 }
 
+interface Profile {
+  id: string
+  full_name: string | null
+  email: string | null
+  role?: string
+}
+
+interface Project {
+  id: string
+  name: string
+  description?: string | null
+}
+
 interface CorosSidebarProps {
   projectName: string
   navItems: NavItem[]
   currentView?: string
+  profile?: Profile | null
+  project?: Project | null
+  userRole?: string | null
 }
 
-export function CorosSidebar({ projectName, navItems, currentView }: CorosSidebarProps) {
+export function CorosSidebar({ 
+  projectName, 
+  navItems, 
+  currentView,
+  profile,
+  project,
+  userRole,
+}: CorosSidebarProps) {
   return (
     <aside className="flex h-full w-[200px] flex-col border-r border-border bg-background">
       {/* Header */}
@@ -53,16 +76,15 @@ export function CorosSidebar({ projectName, navItems, currentView }: CorosSideba
 
       {/* Settings */}
       <div className="px-4 py-4">
-        <button 
-          className="flex items-center justify-center text-foreground hover:text-foreground/80 transition-all duration-200 hover:scale-110 active:scale-95 relative group"
-          aria-label="Settings"
-          title="Settings"
-        >
-          <Settings className="h-5 w-5" />
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
-            Settings
-          </span>
-        </button>
+        {profile ? (
+          <SettingsPopover 
+            profile={profile} 
+            project={project} 
+            userRole={userRole} 
+          />
+        ) : (
+          <div className="h-5 w-5" /> // Placeholder while loading
+        )}
       </div>
     </aside>
   )

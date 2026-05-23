@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 
 export async function loginWithEmail(email: string, password: string) {
   const supabase = await createClient()
@@ -22,11 +23,16 @@ export async function loginWithEmail(email: string, password: string) {
     .eq('id', data.user.id)
     .single()
 
-  // Redirect based on role
-  if (profile?.role === 'admin') {
-    redirect('/admin')
-  } else {
-    redirect('/projects')
+  // Redirect based on role — must not be inside a try/catch in callers
+  try {
+    if (profile?.role === 'admin') {
+      redirect('/admin')
+    } else {
+      redirect('/projects')
+    }
+  } catch (e) {
+    if (isRedirectError(e)) throw e
+    throw e
   }
 }
 

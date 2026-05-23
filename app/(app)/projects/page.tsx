@@ -41,34 +41,63 @@ export default function ProjectsPage() {
         }
 
         // Get user profile
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('full_name, email, role, can_create_projects')
           .eq('id', user.id)
           .single()
 
         if (profileData) {
-          setProfile(profileData)
+          setProfile({
+            full_name: profileData.full_name ?? user.email ?? 'Usuario',
+            email: profileData.email ?? user.email ?? '',
+            role: profileData.role ?? 'viewer',
+            can_create_projects: profileData.can_create_projects ?? false,
+          })
+        } else {
+          // Profile row missing (trigger not yet run) — upsert a minimal row and use auth data
+          const fallbackName =
+            user.user_metadata?.full_name ??
+            user.email?.split('@')[0] ??
+            'Usuario'
+
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            full_name: fallbackName,
+            role: 'viewer',
+            can_create_projects: false,
+          })
+
+          setProfile({
+            full_name: fallbackName,
+            email: user.email ?? '',
+            role: 'viewer',
+            can_create_projects: false,
+          })
         }
 
-        // Get user's projects
-        const { data: memberships } = await supabase
+        // Get user's projects via a single join — avoids RLS recursive self-join issue
+        const { data: memberships, error: membershipsError } = await supabase
           .from('project_members')
-          .select('project_id')
+          .select(`
+            project_id,
+            role,
+            projects (
+              id,
+              name,
+              description,
+              created_at
+            )
+          `)
           .eq('user_id', user.id)
 
         if (memberships && memberships.length > 0) {
-          const projectIds = memberships.map((m) => m.project_id)
+          const projectsData = memberships
+            .map((m) => m.projects as Project | null)
+            .filter((p): p is Project => p !== null)
 
-          const { data: projectsData } = await supabase
-            .from('projects')
-            .select('id, name, description, created_at')
-            .in('id', projectIds)
-            .order('created_at', { ascending: false })
-
-          if (projectsData) {
-            setProjects(projectsData)
-          }
+          setProjects(projectsData)
         }
       } finally {
         setLoading(false)
@@ -86,10 +115,11 @@ export default function ProjectsPage() {
     )
   }
 
+  // Should never be reached after the upsert fallback, but guard defensively
   if (!profile) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Error al cargar perfil</p>
+        <p className="text-sm text-muted-foreground">Redirigiendo...</p>
       </div>
     )
   }
