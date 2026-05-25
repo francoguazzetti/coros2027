@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages, tool } from "ai"
+import { streamText, convertToModelMessages, tool, stepCountIs } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
@@ -280,7 +280,7 @@ Proyecto actual ID: ${projectId}`,
     messages: await convertToModelMessages(messages),
     tools,
     toolChoice: "auto",
-    maxSteps: 5,
+    stopWhen: stepCountIs(10),
   })
 
   return result.toUIMessageStreamResponse()
