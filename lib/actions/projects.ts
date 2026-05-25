@@ -62,6 +62,18 @@ export async function inviteUserToProject(
     .single()
 
   if (existingProfile) {
+    // Check if already a member
+    const { data: alreadyMember } = await supabase
+      .from('project_members')
+      .select('id')
+      .eq('project_id', projectId)
+      .eq('user_id', existingProfile.id)
+      .single()
+
+    if (alreadyMember) {
+      throw new Error('Este usuario ya es miembro del proyecto.')
+    }
+
     const { error } = await supabase.from('project_members').insert({
       project_id: projectId,
       user_id: existingProfile.id,

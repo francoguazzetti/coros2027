@@ -116,7 +116,7 @@ export default function SignUpPage() {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           ¿Ya tenés cuenta?{" "}
           <Link
-            href="/auth/login"
+            href="/login"
             className="text-foreground underline underline-offset-4 hover:text-foreground/80"
           >
             Iniciá sesión

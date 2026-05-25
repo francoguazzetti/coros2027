@@ -54,7 +54,7 @@ export default async function ProjectDashboardPage({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/auth/login")
+  if (!user) redirect("/login")
 
   // Load all data in parallel — profile must include role for SettingsPopover visibility
   const [projects, sentimentCounts, topicSentiments, recentPosts, userRole, sentimentOverTime] =

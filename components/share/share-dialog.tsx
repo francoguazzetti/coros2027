@@ -119,7 +119,8 @@ export function ShareDialog({
       setInviteEmail('')
       loadMembers()
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error al enviar la invitación.' })
+      const msg = error instanceof Error ? error.message : 'Error al enviar la invitación.'
+      setMessage({ type: 'error', text: msg })
     } finally {
       setIsInviting(false)
     }
