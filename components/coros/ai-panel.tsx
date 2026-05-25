@@ -67,10 +67,16 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      prepareSendMessagesRequest: ({ id, messages }) => ({
+      // Spread the full SDK body so tool-result continuation steps work correctly,
+      // then add projectId on top so the server can scope DB queries.
+      prepareSendMessagesRequest: ({ api, id, messages, body, trigger, messageId }) => ({
+        api,
         body: {
-          messages,
+          ...body,
           id,
+          messages,
+          trigger,
+          messageId,
           projectId,
         },
       }),
