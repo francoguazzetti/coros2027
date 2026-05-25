@@ -9,13 +9,19 @@ export async function POST(req: Request) {
   // Check authentication
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    return new Response("Unauthorized", { status: 401 })
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    })
   }
 
   const { messages, projectId } = await req.json()
 
   if (!projectId) {
-    return new Response("projectId is required", { status: 400 })
+    return new Response(JSON.stringify({ error: "projectId is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    })
   }
 
   // Verify the user has access to this project via project_members
@@ -27,7 +33,10 @@ export async function POST(req: Request) {
     .maybeSingle()
 
   if (!membership) {
-    return new Response("Forbidden", { status: 403 })
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    })
   }
 
   // Define tools that query the database
@@ -46,7 +55,7 @@ export async function POST(req: Request) {
           .select("tema, red_social")
           .eq("project_id", projectId)
 
-        if (error) return { error: error.message }
+        if (error) return { error: "Failed to fetch available filters" }
 
         const topics = [...new Set(data?.map((p) => p.tema).filter(Boolean))]
         const networks = [...new Set(data?.map((p) => p.red_social).filter(Boolean))]
@@ -79,7 +88,7 @@ export async function POST(req: Request) {
         if (hasta) query = query.lte("fecha", hasta)
 
         const { data, error } = await query
-        if (error) return { error: error.message }
+        if (error) return { error: "Failed to fetch sentiment summary" }
 
         const positivo = data?.filter((p) => p.sentimiento === "positivo").length ?? 0
         const neutral  = data?.filter((p) => p.sentimiento === "neutral").length ?? 0
@@ -112,7 +121,7 @@ export async function POST(req: Request) {
         if (hasta) query = query.lte("fecha", hasta)
 
         const { data, error } = await query
-        if (error) return { error: error.message }
+        if (error) return { error: "Failed to fetch sentiment by topic" }
 
         const byTopic: Record<string, { positivo: number; neutral: number; negativo: number }> = {}
         data?.forEach((post) => {
@@ -148,7 +157,7 @@ export async function POST(req: Request) {
         if (hasta) query = query.lte("fecha", hasta)
 
         const { data, error } = await query
-        if (error) return { error: error.message }
+        if (error) return { error: "Failed to fetch sentiment by social network" }
 
         const byNetwork: Record<string, { positivo: number; neutral: number; negativo: number }> = {}
         data?.forEach((post) => {
@@ -187,7 +196,7 @@ export async function POST(req: Request) {
         if (hasta) query = query.lte("fecha", hasta)
 
         const { data, error } = await query
-        if (error) return { error: error.message }
+        if (error) return { error: "Failed to fetch sentiment over time" }
 
         // Group by calendar day (YYYY-MM-DD)
         const byDay: Record<string, { positivo: number; neutral: number; negativo: number }> = {}
@@ -236,7 +245,7 @@ export async function POST(req: Request) {
         if (busqueda) query = query.ilike("texto", `%${busqueda}%`)
 
         const { data, error } = await query
-        if (error) return { error: error.message }
+        if (error) return { error: "Failed to fetch posts" }
         return data
       },
     }),
@@ -245,14 +254,14 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai("gpt-4o"),
     system: `Sos un asistente de análisis de datos para la plataforma Coros.
-Tu única fuente de información son las herramientas disponibles, que consultan la base de datos del proyecto.
+Tu ÚNICA fuente de información son las herramientas disponibles. Siempre debés llamar al menos una herramienta antes de responder, sin excepción.
 
 REGLAS ESTRICTAS:
-- Nunca respondas con datos que no provengan de una herramienta. Si no hay datos, decí "No hay datos disponibles para esta consulta."
-- Antes de filtrar por tema o red social, llamá siempre a getAvailableFilters para conocer los valores exactos que existen.
-- Para preguntas sobre tendencias o evolución temporal, usá getSentimentOverTime.
-- Para preguntas sobre totales o resúmenes, usá getSentimentSummary.
-- Para leer el contenido de comentarios o citar ejemplos, usá getPosts.
+- SIEMPRE llamá una herramienta antes de responder. Nunca respondas directamente sin consultar primero.
+- Si el usuario saluda o hace una pregunta general, igual llamá a getAvailableFilters para conocer el contexto del proyecto y respondé con un resumen de qué datos hay disponibles.
+- Nunca inventes datos, nombres de temas, redes sociales, ni comentarios. Usá solo lo que devuelvan las herramientas.
+- Antes de filtrar por tema o red social, llamá siempre a getAvailableFilters para conocer los valores exactos.
+- Si las herramientas no devuelven datos, respondé: "No hay datos disponibles para esta consulta."
 - Respondé siempre en español, de forma concisa y directa.
 - Usá porcentajes además de totales cuando ayude a entender el dato.
 
@@ -260,7 +269,8 @@ Fecha de hoy: ${new Date().toISOString().slice(0, 10)}
 Proyecto actual ID: ${projectId}`,
     messages: await convertToModelMessages(messages),
     tools,
-    maxSteps: 5,
+    toolChoice: "required",
+    maxSteps: 10,
   })
 
   return result.toUIMessageStreamResponse()
