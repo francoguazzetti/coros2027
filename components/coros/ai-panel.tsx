@@ -2,8 +2,8 @@
 
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
-import { ArrowRight, Loader2 } from "lucide-react"
-import { useState } from "react"
+import { ArrowRight, Loader2, AlertCircle } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface SuggestedQuestion {
   text: string
@@ -22,10 +22,49 @@ function getUIMessageText(msg: { parts?: Array<{ type: string; text?: string }> 
     .join("")
 }
 
+const MIN_WIDTH = 220
+const MAX_WIDTH = 600
+const DEFAULT_WIDTH = 280
+
 export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
   const [input, setInput] = useState("")
+  const [width, setWidth] = useState(DEFAULT_WIDTH)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const startWidth = useRef(DEFAULT_WIDTH)
 
-  const { messages, sendMessage, status } = useChat({
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true
+    startX.current = e.clientX
+    startWidth.current = width
+    document.body.style.cursor = "col-resize"
+    document.body.style.userSelect = "none"
+  }, [width])
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return
+      // Panel is on the right, so dragging left (negative delta) makes it wider
+      const delta = startX.current - e.clientX
+      const next = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth.current + delta))
+      setWidth(next)
+    }
+    const onMouseUp = () => {
+      if (!isDragging.current) return
+      isDragging.current = false
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+    }
+    window.addEventListener("mousemove", onMouseMove)
+    window.addEventListener("mouseup", onMouseUp)
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove)
+      window.removeEventListener("mouseup", onMouseUp)
+    }
+  }, [])
+
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
       prepareSendMessagesRequest: ({ id, messages }) => ({
@@ -40,10 +79,19 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
 
   const isLoading = status === "streaming" || status === "submitted"
 
+  // Visible messages only — skip tool-call/tool-result steps
+  const visibleMessages = messages
+    .map((m) => ({ ...m, text: getUIMessageText(m) }))
+    .filter((m) => m.text.length > 0)
+
+  // Auto-scroll to bottom when new content arrives
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [visibleMessages.length, isLoading])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
-
     sendMessage({ text: input })
     setInput("")
   }
@@ -54,9 +102,20 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
   }
 
   return (
-    <div className="flex h-full w-[280px] flex-col border-l border-border bg-background">
-      {/* Suggested Questions */}
+    <div
+      className="relative flex h-full flex-col border-l border-border bg-background"
+      style={{ width }}
+    >
+      {/* Drag handle */}
+      <div
+        onMouseDown={onMouseDown}
+        className="absolute left-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/30 transition-colors"
+        title="Drag to resize"
+      />
+      {/* Messages / Suggested questions */}
       <div className="flex flex-1 flex-col overflow-y-auto p-4">
+
+        {/* Suggested questions — only before first message */}
         {messages.length === 0 && (
           <div className="flex flex-col items-end gap-2">
             {suggestedQuestions.map((question, index) => (
@@ -76,35 +135,41 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
           </div>
         )}
 
-        {/* Messages */}
-        {messages.length > 0 && (
+        {/* Conversation */}
+        {visibleMessages.length > 0 && (
           <div className="flex flex-col gap-3">
-            {messages.map((message) => {
-              const text = getUIMessageText(message)
-              if (!text) return null
-              
-              return (
-                <div
-                  key={message.id}
-                  className={`text-sm ${
-                    message.role === "user"
-                      ? "self-end rounded bg-primary px-3 py-2 text-primary-foreground"
-                      : "self-start text-foreground"
-                  }`}
-                >
-                  {text}
-                </div>
-              )
-            })}
-            
+            {visibleMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`text-sm ${
+                  message.role === "user"
+                    ? "self-end rounded bg-primary px-3 py-2 text-primary-foreground"
+                    : "self-start text-foreground"
+                }`}
+              >
+                {message.text}
+              </div>
+            ))}
+
+            {/* Spinner — shown while loading AND no partial assistant text yet */}
             {isLoading && (
               <div className="flex items-center gap-2 self-start text-sm text-muted-foreground">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Pensando...
+                Consultando datos...
+              </div>
+            )}
+
+            {/* Error state */}
+            {error && !isLoading && (
+              <div className="flex items-center gap-2 self-start text-sm text-destructive">
+                <AlertCircle className="h-3 w-3" />
+                Ocurrió un error. Intentá de nuevo.
               </div>
             )}
           </div>
         )}
+
+        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
