@@ -97,13 +97,34 @@ export async function inviteUserToProject(
 export async function getProjectMembers(projectId: string) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  // Fetch members first — avoid the PostgREST auto-join on profiles
+  // because user_id may have a FK to auth.users (not public.profiles),
+  // which PostgREST cannot resolve across schemas (PGRST200).
+  const { data: members, error: membersError } = await supabase
     .from('project_members')
-    .select(`id, user_id, role, profiles (id, full_name, email)`)
+    .select('id, user_id, role')
     .eq('project_id', projectId)
 
-  if (error) throw error
-  return data
+  if (membersError) throw membersError
+  if (!members || members.length === 0) return []
+
+  const userIds = members.map((m) => m.user_id)
+
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .in('id', userIds)
+
+  if (profilesError) throw profilesError
+
+  const profileMap = new Map((profiles || []).map((p) => [p.id, p]))
+
+  return members.map((m) => ({
+    id: m.id,
+    user_id: m.user_id,
+    role: m.role,
+    profiles: profileMap.get(m.user_id) ?? null,
+  }))
 }
 
 export async function updateUserRole(userId: string, role: 'editor' | 'viewer' | 'owner') {
