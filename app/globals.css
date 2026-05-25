@@ -40,7 +40,7 @@
   
   /* Coros-specific tokens */
   --coros-positive: #5A8247;
-  --coros-neutral: #FFF9F5;
+  --coros-neutral: #C8B89A;
   --coros-negative: #B25252;
   --coros-panel: #FFF9F5;
 }
@@ -80,9 +80,9 @@
   --sidebar-ring: oklch(0.5 0 0);
   
   /* Coros-specific tokens */
-  --coros-positive: oklch(0.3 0 0);
-  --coros-neutral: #FFF9F5;
-  --coros-negative: oklch(0.6 0 0);
+  --coros-positive: #3D6B2C;
+  --coros-neutral: oklch(0.32 0 0);
+  --coros-negative: #8B3333;
   --coros-panel: oklch(0.25 0 0);
 }
 

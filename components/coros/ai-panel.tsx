@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { ArrowRight, Loader2, AlertCircle } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import ReactMarkdown from "react-markdown"
 
 interface SuggestedQuestion {
   text: string
@@ -153,7 +154,24 @@ export function AIPanel({ suggestedQuestions, projectId }: AIPanelProps) {
                     : "self-start text-foreground"
                 }`}
               >
-                {message.text}
+                {message.role === "assistant" ? (
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      ul: ({ children }) => <ul className="mb-2 list-disc pl-4 space-y-1">{children}</ul>,
+                      ol: ({ children }) => <ol className="mb-2 list-decimal pl-4 space-y-1">{children}</ol>,
+                      li: ({ children }) => <li>{children}</li>,
+                      h1: ({ children }) => <h1 className="mb-1 font-semibold text-base">{children}</h1>,
+                      h2: ({ children }) => <h2 className="mb-1 font-semibold">{children}</h2>,
+                      h3: ({ children }) => <h3 className="mb-1 font-medium">{children}</h3>,
+                    }}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
+                ) : (
+                  message.text
+                )}
               </div>
             ))}
 
