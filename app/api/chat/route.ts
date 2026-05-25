@@ -268,8 +268,8 @@ Fecha de hoy: ${new Date().toISOString().slice(0, 10)}
 Proyecto actual ID: ${projectId}`,
     messages: await convertToModelMessages(messages),
     tools,
-    toolChoice: "required",
-    maxSteps: 10,
+    toolChoice: "auto",
+    maxSteps: 5,
   })
 
   return result.toUIMessageStreamResponse()
