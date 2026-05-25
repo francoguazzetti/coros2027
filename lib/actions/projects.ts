@@ -12,27 +12,17 @@ export async function createProject(name: string, description?: string) {
 
   if (!user) throw new Error('Not authenticated')
 
-  // Create the project
   const { data: project, error: projectError } = await supabase
     .from('projects')
-    .insert({
-      name,
-      description,
-      created_by: user.id,
-    })
+    .insert({ name, description, created_by: user.id })
     .select()
     .single()
 
   if (projectError) throw projectError
 
-  // Add user as owner
   const { error: memberError } = await supabase
     .from('project_members')
-    .insert({
-      project_id: project.id,
-      user_id: user.id,
-      role: 'owner',
-    })
+    .insert({ project_id: project.id, user_id: user.id, role: 'owner' })
 
   if (memberError) throw memberError
 
@@ -53,7 +43,18 @@ export async function inviteUserToProject(
 
   if (!user) throw new Error('Not authenticated')
 
-  // Check if user already exists
+  // Verify caller has permission to invite
+  const { data: callerMembership } = await supabase
+    .from('project_members')
+    .select('role')
+    .eq('project_id', projectId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!callerMembership || !['owner', 'editor', 'admin'].includes(callerMembership.role)) {
+    throw new Error('Not authorized')
+  }
+
   const { data: existingProfile } = await supabase
     .from('profiles')
     .select('id')
@@ -61,47 +62,22 @@ export async function inviteUserToProject(
     .single()
 
   if (existingProfile) {
-    // User already registered - add directly
     const { error } = await supabase.from('project_members').insert({
       project_id: projectId,
       user_id: existingProfile.id,
       role,
     })
-
     if (error) throw error
   } else {
-    // User not registered - create invite
     const { error } = await supabase.from('project_invites').insert({
       project_id: projectId,
       email,
       role,
       invited_by: user.id,
     })
-
     if (error) throw error
-
     // TODO: Send magic link email with invite token
   }
-
-  revalidatePath(`/projects/${projectId}`)
-}
-
-export async function removeUserFromProject(projectId: string, userId: string) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) throw new Error('Not authenticated')
-
-  const { error } = await supabase
-    .from('project_members')
-    .delete()
-    .eq('project_id', projectId)
-    .eq('user_id', userId)
-
-  if (error) throw error
 
   revalidatePath(`/projects/${projectId}`)
 }
@@ -111,16 +87,7 @@ export async function getProjectMembers(projectId: string) {
 
   const { data, error } = await supabase
     .from('project_members')
-    .select(`
-      id,
-      user_id,
-      role,
-      profiles (
-        id,
-        full_name,
-        email
-      )
-    `)
+    .select(`id, user_id, role, profiles (id, full_name, email)`)
     .eq('project_id', projectId)
 
   if (error) throw error
@@ -136,7 +103,6 @@ export async function updateUserRole(userId: string, role: 'editor' | 'viewer' |
 
   if (!user) throw new Error('Not authenticated')
 
-  // Check if current user is admin or owner of project
   const { data: adminCheck } = await supabase
     .from('profiles')
     .select('role')

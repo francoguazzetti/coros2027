@@ -5,6 +5,7 @@ import {
   getSentimentCounts,
   getSentimentByTopic,
   getRecentPosts,
+  getSentimentOverTime,
 } from "@/lib/data"
 import { getUserRoleInProject } from "@/lib/actions/settings"
 import { CorosSidebar } from "@/components/coros/sidebar"
@@ -13,6 +14,7 @@ import { TopicSentiment } from "@/components/coros/topic-sentiment"
 import { CommentList, type Comment } from "@/components/coros/comment-card"
 import { AIPanel } from "@/components/coros/ai-panel"
 import { ShareButton } from "@/components/share/share-button"
+import { SentimentTimeline } from "@/components/coros/sentiment-timeline"
 
 const VIEWS = ["general", "redes-sociales", "diarios"] as const
 type View = (typeof VIEWS)[number]
@@ -55,13 +57,14 @@ export default async function ProjectDashboardPage({
   if (!user) redirect("/auth/login")
 
   // Load all data in parallel — profile must include role for SettingsPopover visibility
-  const [projects, sentimentCounts, topicSentiments, recentPosts, userRole] =
+  const [projects, sentimentCounts, topicSentiments, recentPosts, userRole, sentimentOverTime] =
     await Promise.all([
       getUserProjects(),
       getSentimentCounts(projectId),
       getSentimentByTopic(projectId),
       getRecentPosts(projectId, 5),
       getUserRoleInProject(projectId),
+      getSentimentOverTime(projectId),
     ])
 
   // Fetch profile with role — if null (no profile row), redirect defensively
@@ -145,6 +148,10 @@ export default async function ProjectDashboardPage({
           />
 
           <TopicSentiment topics={topicSentiments} />
+
+          {view === "general" && (
+            <SentimentTimeline data={sentimentOverTime} />
+          )}
 
           <CommentList comments={comments} />
         </div>

@@ -123,6 +123,40 @@ export async function getSentimentByTopic(projectId: string): Promise<TopicSenti
   )
 }
 
+export interface SentimentTimelinePoint {
+  date: string          // "DD/MM" label
+  positivo: number
+  neutral: number
+  negativo: number
+}
+
+/** Returns daily sentiment counts over time for the timeline chart */
+export async function getSentimentOverTime(projectId: string): Promise<SentimentTimelinePoint[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("posts")
+    .select("fecha, sentimiento")
+    .eq("project_id", projectId)
+    .not("sentimiento", "is", null)
+    .order("fecha", { ascending: true })
+
+  if (error || !data) return []
+
+  const map: Record<string, SentimentTimelinePoint> = {}
+
+  for (const row of data) {
+    const d = new Date(row.fecha)
+    const key = d.toISOString().slice(0, 10) // "YYYY-MM-DD"
+    const label = `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`
+    if (!map[key]) map[key] = { date: label, positivo: 0, neutral: 0, negativo: 0 }
+    if (row.sentimiento === "positivo") map[key].positivo++
+    else if (row.sentimiento === "negativo") map[key].negativo++
+    else if (row.sentimiento === "neutral") map[key].neutral++
+  }
+
+  return Object.values(map)
+}
+
 /** Returns the N most recent posts/comments with their sentiment */
 export async function getRecentPosts(projectId: string, limit = 5): Promise<PostRow[]> {
   const supabase = await createClient()

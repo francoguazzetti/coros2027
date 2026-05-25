@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { inviteUserToProject, removeUserFromProject } from '@/lib/actions/projects'
+import { inviteUserToProject } from '@/lib/actions/projects'
 import { updateMemberRole, removeMember } from '@/lib/actions/settings'
 import { cn } from '@/lib/utils'
 
