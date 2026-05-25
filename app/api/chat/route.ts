@@ -5,7 +5,7 @@ import { z } from "zod"
 
 export async function POST(req: Request) {
   const supabase = await createClient()
-  
+
   // Check authentication
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
@@ -91,9 +91,9 @@ export async function POST(req: Request) {
         if (error) return { error: "Failed to fetch sentiment summary" }
 
         const positivo = data?.filter((p) => p.sentimiento === "positivo").length ?? 0
-        const neutral  = data?.filter((p) => p.sentimiento === "neutral").length ?? 0
+        const neutral = data?.filter((p) => p.sentimiento === "neutral").length ?? 0
         const negativo = data?.filter((p) => p.sentimiento === "negativo").length ?? 0
-        const total    = data?.length ?? 0
+        const total = data?.length ?? 0
 
         return { positivo, neutral, negativo, total }
       },
@@ -254,13 +254,12 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai("gpt-4o"),
     system: `Sos un asistente de análisis de datos para la plataforma Coros.
-Tu ÚNICA fuente de información son las herramientas disponibles. Siempre debés llamar al menos una herramienta antes de responder, sin excepción.
+Tu ÚNICA fuente de información son las herramientas disponibles. Llamá las herramientas necesarias para responder la pregunta.
 
 REGLAS ESTRICTAS:
-- SIEMPRE llamá una herramienta antes de responder. Nunca respondas directamente sin consultar primero.
-- Si el usuario saluda o hace una pregunta general, igual llamá a getAvailableFilters para conocer el contexto del proyecto y respondé con un resumen de qué datos hay disponibles.
+- Llama las herramientas que necesites para obtener datos.
 - Nunca inventes datos, nombres de temas, redes sociales, ni comentarios. Usá solo lo que devuelvan las herramientas.
-- Antes de filtrar por tema o red social, llamá siempre a getAvailableFilters para conocer los valores exactos.
+- Antes de filtrar por tema o red social, llamá a getAvailableFilters para conocer los valores exactos.
 - Si las herramientas no devuelven datos, respondé: "No hay datos disponibles para esta consulta."
 - Respondé siempre en español, de forma concisa y directa.
 - Usá porcentajes además de totales cuando ayude a entender el dato.
