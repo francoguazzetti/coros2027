@@ -1,5 +1,5 @@
 import { streamText, convertToModelMessages, tool } from "ai"
-import { gateway } from "@ai-sdk/gateway"
+import { openai } from "@ai-sdk/openai"
 import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
 
@@ -243,7 +243,7 @@ export async function POST(req: Request) {
   }
 
   const result = streamText({
-    model: gateway("openai/gpt-4o"),
+    model: openai("gpt-4o"),
     system: `Sos un asistente de análisis de datos para la plataforma Coros.
 Tu única fuente de información son las herramientas disponibles, que consultan la base de datos del proyecto.
 
