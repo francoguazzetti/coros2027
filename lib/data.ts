@@ -170,3 +170,169 @@ export async function getRecentPosts(projectId: string, limit = 5): Promise<Post
   if (error || !data) return []
   return data
 }
+
+// ---- Vista-filtered queries ----
+
+export type DateRange = "24h" | "7d" | "30d" | "all"
+
+function dateRangeFilter(dateRange: DateRange): string | null {
+  if (dateRange === "all") return null
+  const now = new Date()
+  if (dateRange === "24h") return new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  if (dateRange === "7d") return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+}
+
+/** Sentiment counts from posts filtered by vista and optional date range */
+export async function getSentimentCountsByVista(
+  projectId: string,
+  vista: string,
+  dateRange: DateRange = "all"
+): Promise<SentimentCounts> {
+  const supabase = await createClient()
+  let query = supabase
+    .from("posts")
+    .select("sentimiento")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+    .not("sentimiento", "is", null)
+
+  const from = dateRangeFilter(dateRange)
+  if (from) query = query.gte("fecha", from)
+
+  const { data, error } = await query
+  if (error || !data) return { positivo: 0, neutral: 0, negativo: 0, total: 0 }
+
+  const positivo = data.filter((p) => p.sentimiento === "positivo").length
+  const neutral = data.filter((p) => p.sentimiento === "neutral").length
+  const negativo = data.filter((p) => p.sentimiento === "negativo").length
+  return { positivo, neutral, negativo, total: data.length }
+}
+
+/** Sentiment by topic from posts filtered by vista */
+export async function getSentimentByTopicAndVista(
+  projectId: string,
+  vista: string
+): Promise<TopicSentimentData[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("posts")
+    .select("tema, sentimiento")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+    .not("tema", "is", null)
+    .not("sentimiento", "is", null)
+
+  if (error || !data) return []
+
+  const map: Record<string, TopicSentimentData> = {}
+  for (const row of data) {
+    if (!row.tema) continue
+    if (!map[row.tema]) map[row.tema] = { topic: row.tema, positive: 0, negative: 0, neutral: 0 }
+    if (row.sentimiento === "positivo") map[row.tema].positive++
+    else if (row.sentimiento === "negativo") map[row.tema].negative++
+    else if (row.sentimiento === "neutral") map[row.tema].neutral++
+  }
+  return Object.values(map).sort(
+    (a, b) => b.positive + b.negative + b.neutral - (a.positive + a.negative + a.neutral)
+  )
+}
+
+/** N most recent posts filtered by vista */
+export async function getRecentPostsByVista(
+  projectId: string,
+  vista: string,
+  limit = 5
+): Promise<PostRow[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id, texto, red_social, fuente, sentimiento, tema, justificacion, fecha, likes, tipo")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+    .order("fecha", { ascending: false })
+    .limit(limit)
+
+  if (error || !data) return []
+  return data
+}
+
+export interface ArticuloRow {
+  id: string
+  titulo: string
+  fuente: string
+  tipo_fuente: string | null
+  tono_titular: string | null
+  topico: string | null
+  fecha: string
+  url: string | null
+}
+
+/** Tone counts from articulos_prensa filtered by vista */
+export async function getArticleToneCounts(
+  projectId: string,
+  vista: string
+): Promise<SentimentCounts> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("articulos_prensa")
+    .select("tono_titular")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+    .not("tono_titular", "is", null)
+
+  if (error || !data) return { positivo: 0, neutral: 0, negativo: 0, total: 0 }
+
+  const positivo = data.filter((p) => p.tono_titular === "positivo").length
+  const neutral = data.filter((p) => p.tono_titular === "neutro" || p.tono_titular === "neutral").length
+  const negativo = data.filter((p) => p.tono_titular === "negativo").length
+  return { positivo, neutral, negativo, total: data.length }
+}
+
+/** Tone by topic from articulos_prensa filtered by vista */
+export async function getArticleToneByTopic(
+  projectId: string,
+  vista: string
+): Promise<TopicSentimentData[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("articulos_prensa")
+    .select("topico, tono_titular")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+    .not("topico", "is", null)
+    .not("tono_titular", "is", null)
+
+  if (error || !data) return []
+
+  const map: Record<string, TopicSentimentData> = {}
+  for (const row of data) {
+    if (!row.topico) continue
+    if (!map[row.topico]) map[row.topico] = { topic: row.topico, positive: 0, negative: 0, neutral: 0 }
+    if (row.tono_titular === "positivo") map[row.topico].positive++
+    else if (row.tono_titular === "negativo") map[row.topico].negative++
+    else map[row.topico].neutral++
+  }
+  return Object.values(map).sort(
+    (a, b) => b.positive + b.negative + b.neutral - (a.positive + a.negative + a.neutral)
+  )
+}
+
+/** N most recent articles from articulos_prensa filtered by vista */
+export async function getRecentArticulos(
+  projectId: string,
+  vista: string,
+  limit = 5
+): Promise<ArticuloRow[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("articulos_prensa")
+    .select("id, titulo, fuente, tipo_fuente, tono_titular, topico, fecha, url")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+    .order("fecha", { ascending: false })
+    .limit(limit)
+
+  if (error || !data) return []
+  return data
+}

@@ -2,9 +2,11 @@ interface SentimentStatsProps {
   positives: number
   neutrals: number
   negatives: number
+  title?: string
+  subtitle?: string
 }
 
-export function SentimentStats({ positives, neutrals, negatives }: SentimentStatsProps) {
+export function SentimentStats({ positives, neutrals, negatives, title = "Sentimiento general", subtitle }: SentimentStatsProps) {
   const total = positives + neutrals + negatives
   const positivePercent = total > 0 ? (positives / total) * 100 : 0
   const neutralPercent = total > 0 ? (neutrals / total) * 100 : 0
@@ -13,9 +15,12 @@ export function SentimentStats({ positives, neutrals, negatives }: SentimentStat
   return (
     <div className="space-y-4 mb-6">
       {/* Section Header */}
-      <h2 className="text-sm font-normal underline underline-offset-4 mb-[25px]">
-        Sentimiento general
-      </h2>
+      {title && (
+        <div className="mb-[25px]">
+          <h2 className="text-sm font-normal underline underline-offset-4">{title}</h2>
+          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="flex justify-between mb-[33px]">
