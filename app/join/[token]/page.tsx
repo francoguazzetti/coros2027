@@ -40,7 +40,7 @@ export default async function JoinPage({
   }
 
   if (projectId) {
-    redirect(`/projects/${projectId}/candidato`)
+    redirect(`/projects/${projectId}/general`)
   }
 
   redirect('/projects')
