@@ -216,6 +216,7 @@ export default async function ProjectDashboardPage({
               positives={sentimentCounts.positivo}
               neutrals={sentimentCounts.neutral}
               negatives={sentimentCounts.negativo}
+              title=""
             />
           </div>
 
