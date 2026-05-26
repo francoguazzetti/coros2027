@@ -73,7 +73,7 @@ export default async function ProjectsPage() {
           {projects.map((project) => (
             <Link
               key={project.id}
-              href={`/projects/${project.id}/general`}
+              href={`/projects/${project.id}/candidato`}
               className="rounded border border-border bg-card p-6 text-left transition-all duration-200 hover:shadow-md hover:scale-[1.01] hover:-translate-y-1 block group"
             >
               <h3 className="font-semibold text-foreground transition-colors duration-200 group-hover:text-foreground/80">

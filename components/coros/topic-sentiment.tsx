@@ -6,9 +6,11 @@ interface TopicSentiment {
 
 interface TopicSentimentProps {
   topics: TopicSentiment[]
+  title?: string
+  subtitle?: string
 }
 
-export function TopicSentiment({ topics }: TopicSentimentProps) {
+export function TopicSentiment({ topics, title = "Sentimiento por tema", subtitle }: TopicSentimentProps) {
   const maxValue = Math.max(...topics.flatMap((t) => [t.positive, t.negative]), 1)
 
   const pct = (value: number) => `${Math.round((value / maxValue) * 100)}%`
@@ -16,9 +18,10 @@ export function TopicSentiment({ topics }: TopicSentimentProps) {
   return (
     <div className="space-y-4">
       {/* Section Header */}
-      <h2 className="text-sm font-normal underline underline-offset-4">
-        Sentimiento por tema
-      </h2>
+      <div>
+        <h2 className="text-sm font-normal underline underline-offset-4">{title}</h2>
+        {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+      </div>
 
       {/* Topic Bars */}
       <div className="space-y-3">
