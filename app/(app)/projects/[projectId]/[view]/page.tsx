@@ -226,7 +226,10 @@ export default async function ProjectDashboardPage({
             subtitle="Redes sociales"
           />
 
-          {/* Sección 3 — Tono de cobertura en medios */}
+          {/* Sección 3 — Últimos comentarios en redes */}
+          <CommentList comments={comments} />
+
+          {/* Sección 4 — Tono de cobertura en medios */}
           <SentimentStats
             positives={articleToneCounts.positivo}
             neutrals={articleToneCounts.neutral}
@@ -235,15 +238,12 @@ export default async function ProjectDashboardPage({
             subtitle="Medios periodísticos"
           />
 
-          {/* Sección 4 — Cobertura por tópico en medios */}
+          {/* Sección 5 — Cobertura por tópico en medios */}
           <TopicSentiment
             topics={articleToneByTopic}
             title="Cobertura por tópico"
             subtitle="Medios periodísticos"
           />
-
-          {/* Sección 5 — Últimos comentarios en redes */}
-          <CommentList comments={comments} />
 
           {/* Sección 6 — Últimas noticias */}
           <NewsList articles={articles} />
