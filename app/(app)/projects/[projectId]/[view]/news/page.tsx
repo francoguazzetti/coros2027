@@ -58,7 +58,7 @@ export default async function NewsPage({
   const [projects, { rows: articulos, total }, { topicos, fuentes }, { data: projectData }] =
     await Promise.all([
       getUserProjects(),
-      getAllArticulosByVista(projectId, vista, { tono, topico, fuente }, page, PAGE_SIZE),
+      getAllArticulosByVista(projectId, vista, { tono, tema: topico, fuente }, page, PAGE_SIZE),
       getArticuloFilterOptions(projectId, vista),
       supabase
         .from("projects")
@@ -84,7 +84,7 @@ export default async function NewsPage({
     title: a.titulo,
     source: a.fuente,
     tone: mapSentimentLabel(a.tono_titular),
-    tema: a.topico ?? "—",
+    tema: a.tema ?? "—",
     url: a.url,
   }))
 

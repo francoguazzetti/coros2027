@@ -40,7 +40,7 @@ export interface PostRow {
 /** Returns all projects the authenticated user is a member of */
 export async function getUserProjects(): Promise<Project[]> {
   const supabase = await createClient()
-  
+
   // Get the current user
   const {
     data: { user },
@@ -263,7 +263,7 @@ export interface ArticuloRow {
   fuente: string
   tipo_fuente: string | null
   tono_titular: string | null
-  topico: string | null
+  tema: string | null
   fecha: string
   url: string | null
 }
@@ -297,21 +297,21 @@ export async function getArticleToneByTopic(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("articulos_prensa")
-    .select("topico, tono_titular")
+    .select("tema, tono_titular")
     .eq("project_id", projectId)
     .eq("vista", vista)
-    .not("topico", "is", null)
+    .not("tema", "is", null)
     .not("tono_titular", "is", null)
 
   if (error || !data) return []
 
   const map: Record<string, TopicSentimentData> = {}
   for (const row of data) {
-    if (!row.topico) continue
-    if (!map[row.topico]) map[row.topico] = { topic: row.topico, positive: 0, negative: 0, neutral: 0 }
-    if (row.tono_titular === "positivo") map[row.topico].positive++
-    else if (row.tono_titular === "negativo") map[row.topico].negative++
-    else map[row.topico].neutral++
+    if (!row.tema) continue
+    if (!map[row.tema]) map[row.tema] = { topic: row.tema, positive: 0, negative: 0, neutral: 0 }
+    if (row.tono_titular === "positivo") map[row.tema].positive++
+    else if (row.tono_titular === "negativo") map[row.tema].negative++
+    else map[row.tema].neutral++
   }
   return Object.values(map).sort(
     (a, b) => b.positive + b.negative + b.neutral - (a.positive + a.negative + a.neutral)
@@ -327,7 +327,7 @@ export async function getRecentArticulos(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("articulos_prensa")
-    .select("id, titulo, fuente, tipo_fuente, tono_titular, topico, fecha, url")
+    .select("id, titulo, fuente, tipo_fuente, tono_titular, tema, fecha, url")
     .eq("project_id", projectId)
     .eq("vista", vista)
     .order("fecha", { ascending: false })
@@ -345,7 +345,7 @@ export interface PostFilters {
 
 export interface ArticuloFilters {
   tono?: string
-  topico?: string
+  tema?: string
   fuente?: string
 }
 
@@ -388,7 +388,7 @@ export async function getAllArticulosByVista(
   const supabase = await createClient()
   let query = supabase
     .from("articulos_prensa")
-    .select("id, titulo, fuente, tipo_fuente, tono_titular, topico, fecha, url", { count: "exact" })
+    .select("id, titulo, fuente, tipo_fuente, tono_titular, tema, fecha, url", { count: "exact" })
     .eq("project_id", projectId)
     .eq("vista", vista)
 
@@ -400,7 +400,7 @@ export async function getAllArticulosByVista(
       query = query.eq("tono_titular", filters.tono)
     }
   }
-  if (filters.topico) query = query.eq("topico", filters.topico)
+  if (filters.tema) query = query.eq("tema", filters.tema)
   if (filters.fuente) query = query.eq("fuente", filters.fuente)
 
   const from = (page - 1) * pageSize
@@ -438,12 +438,12 @@ export async function getArticuloFilterOptions(
   const supabase = await createClient()
   const { data } = await supabase
     .from("articulos_prensa")
-    .select("topico, fuente")
+    .select("tema, fuente")
     .eq("project_id", projectId)
     .eq("vista", vista)
 
   if (!data) return { topicos: [], fuentes: [] }
-  const topicos = [...new Set(data.map((r) => r.topico).filter(Boolean) as string[])].sort()
+  const topicos = [...new Set(data.map((r) => r.tema).filter(Boolean) as string[])].sort()
   const fuentes = [...new Set(data.map((r) => r.fuente).filter(Boolean) as string[])].sort()
   return { topicos, fuentes }
 }

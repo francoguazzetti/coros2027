@@ -153,7 +153,7 @@ export default async function ProjectDashboardPage({
     title: a.titulo,
     source: a.fuente,
     tone: mapSentimentLabel(a.tono_titular),
-    tema: a.topico ?? "—",
+    tema: a.tema ?? "—",
     url: a.url,
   }))
 
