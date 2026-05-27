@@ -392,7 +392,14 @@ export async function getAllArticulosByVista(
     .eq("project_id", projectId)
     .eq("vista", vista)
 
-  if (filters.tono) query = query.eq("tono_titular", filters.tono)
+  if (filters.tono) {
+    // DB stores neutral tone as "neutro" or "neutral" — match both
+    if (filters.tono === "neutral") {
+      query = query.in("tono_titular", ["neutro", "neutral"])
+    } else {
+      query = query.eq("tono_titular", filters.tono)
+    }
+  }
   if (filters.topico) query = query.eq("topico", filters.topico)
   if (filters.fuente) query = query.eq("fuente", filters.fuente)
 
