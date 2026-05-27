@@ -43,9 +43,10 @@ export function CommentCard({ comment }: CommentCardProps) {
 
 interface CommentListProps {
   comments: Comment[]
+  viewAllHref?: string
 }
 
-export function CommentList({ comments }: CommentListProps) {
+export function CommentList({ comments, viewAllHref }: CommentListProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-sm font-normal underline underline-offset-4">
@@ -60,6 +61,17 @@ export function CommentList({ comments }: CommentListProps) {
           ))
         )}
       </div>
+      {viewAllHref && comments.length > 0 && (
+        <a
+          href={viewAllHref}
+          className="flex items-center justify-center gap-1.5 w-full py-2 text-xs text-muted-foreground border border-border rounded-[5px] hover:text-foreground hover:border-foreground transition-colors duration-150"
+        >
+          Ver todos los comentarios
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+        </a>
+      )}
     </div>
   )
 }
@@ -113,9 +125,10 @@ export function NewsCard({ article }: NewsCardProps) {
 
 interface NewsListProps {
   articles: NewsArticle[]
+  viewAllHref?: string
 }
 
-export function NewsList({ articles }: NewsListProps) {
+export function NewsList({ articles, viewAllHref }: NewsListProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-sm font-normal underline underline-offset-4">
@@ -130,6 +143,17 @@ export function NewsList({ articles }: NewsListProps) {
           ))
         )}
       </div>
+      {viewAllHref && articles.length > 0 && (
+        <a
+          href={viewAllHref}
+          className="flex items-center justify-center gap-1.5 w-full py-2 text-xs text-muted-foreground border border-border rounded-[5px] hover:text-foreground hover:border-foreground transition-colors duration-150"
+        >
+          Ver todas las noticias
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+        </a>
+      )}
     </div>
   )
 }

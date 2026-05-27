@@ -228,7 +228,7 @@ export default async function ProjectDashboardPage({
           />
 
           {/* Sección 3 — Últimos comentarios en redes */}
-          <CommentList comments={comments} />
+          <CommentList comments={comments} viewAllHref={`/projects/${projectId}/${vista}/comments`} />
 
           {/* Sección 4 — Tono de cobertura en medios */}
           <SentimentStats
@@ -247,7 +247,7 @@ export default async function ProjectDashboardPage({
           />
 
           {/* Sección 6 — Últimas noticias */}
-          <NewsList articles={articles} />
+          <NewsList articles={articles} viewAllHref={`/projects/${projectId}/${vista}/news`} />
 
         </div>
       </main>

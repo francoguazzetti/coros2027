@@ -336,3 +336,107 @@ export async function getRecentArticulos(
   if (error || !data) return []
   return data
 }
+
+export interface PostFilters {
+  sentimiento?: string
+  tema?: string
+  red_social?: string
+}
+
+export interface ArticuloFilters {
+  tono?: string
+  topico?: string
+  fuente?: string
+}
+
+/** All posts filtered by vista + optional filters, paginated */
+export async function getAllPostsByVista(
+  projectId: string,
+  vista: string,
+  filters: PostFilters = {},
+  page = 1,
+  pageSize = 20
+): Promise<{ rows: PostRow[]; total: number }> {
+  const supabase = await createClient()
+  let query = supabase
+    .from("posts")
+    .select("id, texto, red_social, fuente, sentimiento, tema, justificacion, fecha, likes, tipo", { count: "exact" })
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+
+  if (filters.sentimiento) query = query.eq("sentimiento", filters.sentimiento)
+  if (filters.tema) query = query.eq("tema", filters.tema)
+  if (filters.red_social) query = query.eq("red_social", filters.red_social)
+
+  const from = (page - 1) * pageSize
+  const { data, error, count } = await query
+    .order("fecha", { ascending: false })
+    .range(from, from + pageSize - 1)
+
+  if (error || !data) return { rows: [], total: 0 }
+  return { rows: data, total: count ?? 0 }
+}
+
+/** All articles filtered by vista + optional filters, paginated */
+export async function getAllArticulosByVista(
+  projectId: string,
+  vista: string,
+  filters: ArticuloFilters = {},
+  page = 1,
+  pageSize = 20
+): Promise<{ rows: ArticuloRow[]; total: number }> {
+  const supabase = await createClient()
+  let query = supabase
+    .from("articulos_prensa")
+    .select("id, titulo, fuente, tipo_fuente, tono_titular, topico, fecha, url", { count: "exact" })
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+
+  if (filters.tono) query = query.eq("tono_titular", filters.tono)
+  if (filters.topico) query = query.eq("topico", filters.topico)
+  if (filters.fuente) query = query.eq("fuente", filters.fuente)
+
+  const from = (page - 1) * pageSize
+  const { data, error, count } = await query
+    .order("fecha", { ascending: false })
+    .range(from, from + pageSize - 1)
+
+  if (error || !data) return { rows: [], total: 0 }
+  return { rows: data, total: count ?? 0 }
+}
+
+/** Distinct values for post filter dropdowns */
+export async function getPostFilterOptions(
+  projectId: string,
+  vista: string
+): Promise<{ temas: string[]; redes: string[] }> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("posts")
+    .select("tema, red_social")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+
+  if (!data) return { temas: [], redes: [] }
+  const temas = [...new Set(data.map((r) => r.tema).filter(Boolean) as string[])].sort()
+  const redes = [...new Set(data.map((r) => r.red_social).filter(Boolean) as string[])].sort()
+  return { temas, redes }
+}
+
+/** Distinct values for article filter dropdowns */
+export async function getArticuloFilterOptions(
+  projectId: string,
+  vista: string
+): Promise<{ topicos: string[]; fuentes: string[] }> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("articulos_prensa")
+    .select("topico, fuente")
+    .eq("project_id", projectId)
+    .eq("vista", vista)
+
+  if (!data) return { topicos: [], fuentes: [] }
+  const topicos = [...new Set(data.map((r) => r.topico).filter(Boolean) as string[])].sort()
+  const fuentes = [...new Set(data.map((r) => r.fuente).filter(Boolean) as string[])].sort()
+  return { topicos, fuentes }
+}
