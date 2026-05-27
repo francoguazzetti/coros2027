@@ -82,7 +82,7 @@ export interface NewsArticle {
   title: string
   source: string
   tone: SentimentLabel
-  topic: string
+  tema: string
   url: string | null
 }
 
@@ -107,7 +107,7 @@ export function NewsCard({ article }: NewsCardProps) {
         <span className="text-xs text-muted-foreground">{article.source}</span>
         <SentimentBadge label={article.tone} />
         <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] border border-border text-muted-foreground">
-          {article.topic}
+          {article.tema}
         </span>
       </div>
     </div>

@@ -84,7 +84,7 @@ export default async function NewsPage({
     title: a.titulo,
     source: a.fuente,
     tone: mapSentimentLabel(a.tono_titular),
-    topic: a.topico ?? "—",
+    tema: a.topico ?? "—",
     url: a.url,
   }))
 
