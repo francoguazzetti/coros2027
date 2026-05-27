@@ -150,6 +150,7 @@ export default async function ProjectDashboardPage({
 
   // Map articles to NewsArticle shape
   const articles: NewsArticle[] = recentArticulos.map((a) => ({
+    id: a.id,
     title: a.titulo,
     source: a.fuente,
     tone: mapSentimentLabel(a.tono_titular),

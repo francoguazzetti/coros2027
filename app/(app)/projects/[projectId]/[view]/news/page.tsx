@@ -6,7 +6,7 @@ import {
   getArticuloFilterOptions,
 } from "@/lib/data"
 import { CorosSidebar } from "@/components/coros/sidebar"
-import { NewsCard } from "@/components/coros/comment-card"
+import { NewsListClient } from "@/components/coros/news-list-client"
 import type { NewsArticle } from "@/components/coros/comment-card"
 
 const VIEWS = ["candidato", "municipio", "oposicion"] as const
@@ -80,12 +80,14 @@ export default async function NewsPage({
     })),
   ]
 
-  const articles: NewsArticle[] = articulos.map((a) => ({
+  const articles = articulos.map((a) => ({
+    id: a.id,
     title: a.titulo,
     source: a.fuente,
     tone: mapSentimentLabel(a.tono_titular),
     tema: a.tema ?? "—",
     url: a.url,
+    filterBySourceHref: a.fuente && !fuente ? buildUrl({ fuente: a.fuente, page: "1" }) : undefined,
   }))
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
@@ -189,28 +191,7 @@ export default async function NewsPage({
           </div>
 
           {/* List */}
-          <div className="space-y-3">
-            {articles.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">Sin resultados para los filtros seleccionados.</p>
-            ) : (
-              articles.map((article, i) => (
-                <div key={i}>
-                  <NewsCard article={article} />
-                  {/* Fuente como chip clickeable para filtrar */}
-                  {article.source && !fuente && (
-                    <div className="mt-1 ml-1">
-                      <a
-                        href={buildUrl({ fuente: article.source, page: "1" })}
-                        className="text-[10px] text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-                      >
-                        Filtrar por {article.source}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+          <NewsListClient articles={articles} projectId={projectId} />
 
           {/* Pagination */}
           {totalPages > 1 && (

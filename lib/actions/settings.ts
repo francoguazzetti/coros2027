@@ -134,6 +134,23 @@ export async function deleteProject(projectId: string, confirmName: string) {
   return { success: true }
 }
 
+export async function deleteArticulo(id: string, projectId: string) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('articulos_prensa')
+    .delete()
+    .eq('id', id)
+    .eq('project_id', projectId) // belt-and-suspenders; RLS also enforces this
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath(`/projects/${projectId}`)
+}
+
 export async function getProject(projectId: string) {
   const supabase = await createClient()
 

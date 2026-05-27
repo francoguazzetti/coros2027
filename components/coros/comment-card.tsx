@@ -79,6 +79,7 @@ export function CommentList({ comments, viewAllHref }: CommentListProps) {
 // ---- News articles (articulos_prensa) ----
 
 export interface NewsArticle {
+  id: string
   title: string
   source: string
   tone: SentimentLabel
@@ -88,39 +89,68 @@ export interface NewsArticle {
 
 interface NewsCardProps {
   article: NewsArticle
+  onDelete?: (id: string) => void
+  deleting?: boolean
 }
 
-export function NewsCard({ article }: NewsCardProps) {
-  const inner = (
-    <div className="border border-border bg-background p-4 rounded-[5px] transition-all duration-200 hover:shadow-md hover:scale-[1.01] hover:-translate-y-1 cursor-pointer">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm text-foreground font-medium leading-relaxed flex-1">{article.title}</p>
-        {article.url && (
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            <polyline points="15 3 21 3 21 9"/>
-            <line x1="10" y1="14" x2="21" y2="3"/>
-          </svg>
-        )}
-      </div>
-      <div className="mt-3 flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-muted-foreground">{article.source}</span>
-        <SentimentBadge label={article.tone} />
-        <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] border border-border text-muted-foreground">
-          {article.tema}
-        </span>
-      </div>
+export function NewsCard({ article, onDelete, deleting }: NewsCardProps) {
+  const cardContent = (
+    <div className="flex items-start justify-between gap-2">
+      <p className="text-sm text-foreground font-medium leading-relaxed flex-1">{article.title}</p>
+      {article.url && (
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      )}
     </div>
   )
 
-  if (article.url) {
-    return (
-      <a href={article.url} target="_blank" rel="noopener noreferrer" className="block">
-        {inner}
-      </a>
-    )
-  }
-  return inner
+  const meta = (
+    <div className="mt-3 flex items-center gap-2 flex-wrap">
+      <span className="text-xs text-muted-foreground">{article.source}</span>
+      <SentimentBadge label={article.tone} />
+      <span className="text-[10px] px-1.5 py-0.5 rounded-[3px] border border-border text-muted-foreground">
+        {article.tema}
+      </span>
+    </div>
+  )
+
+  const inner = article.url ? (
+    <a href={article.url} target="_blank" rel="noopener noreferrer" className="block min-w-0 flex-1">
+      <div>
+        {cardContent}
+        {meta}
+      </div>
+    </a>
+  ) : (
+    <div className="min-w-0 flex-1">
+      {cardContent}
+      {meta}
+    </div>
+  )
+
+  return (
+    <div className={`group border border-border bg-background p-4 rounded-[5px] transition-all duration-200 hover:shadow-md flex items-start gap-3 ${deleting ? "opacity-40 pointer-events-none" : ""}`}>
+      {inner}
+      {onDelete && (
+        <button
+          onClick={() => onDelete(article.id)}
+          disabled={deleting}
+          aria-label="Eliminar artículo"
+          className="shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-muted-foreground hover:text-destructive"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </button>
+      )}
+    </div>
+  )
 }
 
 interface NewsListProps {
