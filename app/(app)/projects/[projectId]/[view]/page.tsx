@@ -131,6 +131,12 @@ export default async function ProjectDashboardPage({
       isActive: v === vista,
       indent: true,
     })),
+    {
+      label: "Mapa",
+      href: `/projects/${projectId}/mapa`,
+      isActive: false,
+      indent: true,
+    },
   ]
 
   // Map posts to Comment shape
