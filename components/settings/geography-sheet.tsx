@@ -15,11 +15,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  getProjectGeography,
-  updateProjectGeography,
-  uploadGeojson,
-} from '@/lib/actions/settings'
+// Stubs — reemplazar cuando los server actions estén implementados en lib/actions/settings.ts
+async function getProjectGeography(
+  _projectId: string,
+): Promise<{ data?: ProjectGeography; error?: string }> {
+  return { data: undefined }
+}
+async function updateProjectGeography(
+  _projectId: string,
+  _geography: ProjectGeography,
+): Promise<{ data?: ProjectGeography; error?: string }> {
+  return { data: _geography }
+}
+async function uploadGeojson(
+  _projectId: string,
+  _file: File,
+): Promise<{ data?: { url: string }; error?: string }> {
+  return { data: { url: '' } }
+}
 import { cn } from '@/lib/utils'
 
 // ── Types ─────────────────────────────────────────────────────────────────────

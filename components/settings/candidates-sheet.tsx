@@ -23,11 +23,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  getProjectCandidates,
-  upsertProjectCandidate,
-  deleteProjectCandidate,
-} from '@/lib/actions/settings'
+// Stubs — reemplazar cuando los server actions estén implementados en lib/actions/settings.ts
+async function getProjectCandidates(
+  _projectId: string,
+): Promise<{ data?: Candidate[]; error?: string }> {
+  return { data: [] }
+}
+async function upsertProjectCandidate(
+  _projectId: string,
+  _candidate: Omit<Candidate, 'id'> & { id?: string },
+): Promise<{ data?: Candidate; error?: string }> {
+  return { data: { id: crypto.randomUUID(), ..._candidate } as Candidate }
+}
+async function deleteProjectCandidate(
+  _projectId: string,
+  _candidateId: string,
+): Promise<{ error?: string }> {
+  return {}
+}
 import { cn } from '@/lib/utils'
 
 export interface Candidate {
