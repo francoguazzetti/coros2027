@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Settings, User, FolderOpen, Rss, Palette, LogOut, ChevronLeft } from 'lucide-react'
+import { Settings, User, FolderOpen, Rss, Palette, LogOut, ChevronLeft, Users, MapPin } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { ProfileDialog } from './profile-dialog'
 import { ProjectDialog } from './project-dialog'
 import { DataSourcesSheet } from './data-sources-sheet'
+import { CandidatesSheet } from './candidates-sheet'
+import { GeographySheet } from './geography-sheet'
 import { AppearanceView } from './appearance-view'
 import { logout } from '@/lib/actions/auth'
 import { cn } from '@/lib/utils'
@@ -41,6 +43,8 @@ export function SettingsPopover({ profile, project, userRole }: SettingsPopoverP
   const [profileOpen, setProfileOpen] = useState(false)
   const [projectOpen, setProjectOpen] = useState(false)
   const [dataSourcesOpen, setDataSourcesOpen] = useState(false)
+  const [candidatesOpen, setCandidatesOpen] = useState(false)
+  const [geographyOpen, setGeographyOpen] = useState(false)
 
   const isCreatorOrAdmin =
     userRole === 'owner' ||
@@ -89,6 +93,22 @@ export function SettingsPopover({ profile, project, userRole }: SettingsPopoverP
             onClick: () => {
               setOpen(false)
               setDataSourcesOpen(true)
+            },
+          },
+          {
+            icon: Users,
+            label: 'Candidatos',
+            onClick: () => {
+              setOpen(false)
+              setCandidatesOpen(true)
+            },
+          },
+          {
+            icon: MapPin,
+            label: 'Geografía',
+            onClick: () => {
+              setOpen(false)
+              setGeographyOpen(true)
             },
           },
         ]
@@ -196,6 +216,16 @@ export function SettingsPopover({ profile, project, userRole }: SettingsPopoverP
           <DataSourcesSheet
             open={dataSourcesOpen}
             onOpenChange={setDataSourcesOpen}
+            projectId={project.id}
+          />
+          <CandidatesSheet
+            open={candidatesOpen}
+            onOpenChange={setCandidatesOpen}
+            projectId={project.id}
+          />
+          <GeographySheet
+            open={geographyOpen}
+            onOpenChange={setGeographyOpen}
             projectId={project.id}
           />
         </>
