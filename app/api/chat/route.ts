@@ -1,4 +1,5 @@
 import { streamText, convertToModelMessages, tool, stepCountIs, consumeStream } from "ai"
+import { openai } from "@ai-sdk/openai"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import { z } from "zod"
@@ -303,7 +304,7 @@ Proyecto actual ID: ${projectId}`,
       const { error } = await service.from("ai_usage_events").insert({
         user_id: user.id,
         project_id: projectId,
-        model: MODEL_ID,
+    model: openai(MODEL_ID),
         input_tokens: totalUsage.inputTokens ?? 0,
         output_tokens: totalUsage.outputTokens ?? 0,
         total_tokens:
