@@ -1,8 +1,8 @@
 "use client"
 
 import { useTransition } from "react"
-import { NewsCard } from "@/components/coros/comment-card"
-import type { NewsArticle } from "@/components/coros/comment-card"
+import { NewsCard } from "@/components/claribi/comment-card"
+import type { NewsArticle } from "@/components/claribi/comment-card"
 import { deleteArticulo } from "@/lib/actions/settings"
 
 interface NewsListClientProps {

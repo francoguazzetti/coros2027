@@ -5,9 +5,9 @@ import {
   getAllArticulosByVista,
   getArticuloFilterOptions,
 } from "@/lib/data"
-import { CorosSidebar } from "@/components/coros/sidebar"
-import { NewsListClient } from "@/components/coros/news-list-client"
-import type { NewsArticle } from "@/components/coros/comment-card"
+import { ClariBISidebar } from "@/components/claribi/sidebar"
+import { NewsListClient } from "@/components/claribi/news-list-client"
+import type { NewsArticle } from "@/components/claribi/comment-card"
 
 const VIEWS = ["candidato", "municipio", "oposicion"] as const
 type View = (typeof VIEWS)[number]
@@ -115,7 +115,7 @@ export default async function NewsPage({
 
   return (
     <div className="flex h-screen bg-background">
-      <CorosSidebar
+      <ClariBISidebar
         projectName={currentProject.name}
         navItems={navItems}
         currentView={vista}

@@ -5,9 +5,9 @@ import {
   getAllPostsByVista,
   getPostFilterOptions,
 } from "@/lib/data"
-import { CorosSidebar } from "@/components/coros/sidebar"
-import { CommentCard } from "@/components/coros/comment-card"
-import type { Comment } from "@/components/coros/comment-card"
+import { ClariBISidebar } from "@/components/claribi/sidebar"
+import { CommentCard } from "@/components/claribi/comment-card"
+import type { Comment } from "@/components/claribi/comment-card"
 
 const VIEWS = ["candidato", "municipio", "oposicion"] as const
 type View = (typeof VIEWS)[number]
@@ -114,7 +114,7 @@ export default async function CommentsPage({
 
   return (
     <div className="flex h-screen bg-background">
-      <CorosSidebar
+      <ClariBISidebar
         projectName={currentProject.name}
         navItems={navItems}
         currentView={vista}

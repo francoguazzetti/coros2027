@@ -151,7 +151,7 @@ export function ProjectDialog({ open, onOpenChange, project, userRole }: Project
               {message && (
                 <p
                   className={`text-sm ${
-                    message.type === 'success' ? 'text-coros-positive' : 'text-coros-negative'
+                    message.type === 'success' ? 'text-claribi-positive' : 'text-claribi-negative'
                   }`}
                 >
                   {message.text}

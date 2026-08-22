@@ -11,11 +11,11 @@ import {
   type DateRange,
 } from "@/lib/data"
 import { getUserRoleInProject } from "@/lib/actions/settings"
-import { CorosSidebar } from "@/components/coros/sidebar"
-import { SentimentStats } from "@/components/coros/sentiment-stats"
-import { TopicSentiment } from "@/components/coros/topic-sentiment"
-import { CommentList, NewsList, type Comment, type NewsArticle } from "@/components/coros/comment-card"
-import { AIPanel } from "@/components/coros/ai-panel"
+import { ClariBISidebar } from "@/components/claribi/sidebar"
+import { SentimentStats } from "@/components/claribi/sentiment-stats"
+import { TopicSentiment } from "@/components/claribi/topic-sentiment"
+import { CommentList, NewsList, type Comment, type NewsArticle } from "@/components/claribi/comment-card"
+import { AIPanel } from "@/components/claribi/ai-panel"
 import { ShareButton } from "@/components/share/share-button"
 
 const VIEWS = ["candidato", "municipio", "oposicion"] as const
@@ -169,7 +169,7 @@ export default async function ProjectDashboardPage({
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
-      <CorosSidebar
+      <ClariBISidebar
         projectName={currentProject.name}
         navItems={navItems}
         currentView={vista}

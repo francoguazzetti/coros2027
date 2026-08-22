@@ -258,7 +258,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openai(MODEL_ID),
-    system: `Sos un asistente de análisis de datos para la plataforma Coros.
+    system: `Sos un asistente de análisis de datos para la plataforma ClariBI.
 Tu ÚNICA fuente de información son las herramientas disponibles, que leen la base de datos del proyecto en tiempo real.
 
 ALCANCE — MUY IMPORTANTE:

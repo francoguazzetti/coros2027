@@ -26,7 +26,7 @@ The app degrades gracefully if Supabase env vars are absent (middleware passes t
 
 ## Architecture Overview
 
-**Coros** is an AI-powered sentiment analysis and social media monitoring platform built with Next.js 16, Supabase (auth + database), and the Vercel AI SDK.
+**ClariBI** is an AI-powered sentiment analysis and social media monitoring platform built with Next.js 16, Supabase (auth + database), and the Vercel AI SDK.
 
 ### Route Structure
 
@@ -85,7 +85,7 @@ The client side uses `useChat` from `@ai-sdk/react` with `DefaultChatTransport`,
 ### UI Components
 
 - `components/ui/` — shadcn/ui primitives (Radix UI + Tailwind).
-- `components/coros/` — domain components: `CorosSidebar`, `SentimentStats`, `TopicSentiment`, `CommentList`, `AIPanel`.
+- `components/claribi/` — domain components: `ClariBISidebar`, `SentimentStats`, `TopicSentiment`, `CommentList`, `AIPanel`.
 - `components/settings/` — settings popover and its sub-dialogs: `ProfileDialog`, `ProjectDialog`, `DataSourcesSheet`, `AppearanceView`, `MembersList`.
 - `components/share/` — `ShareButton` + `ShareDialog` for generating/managing share links.
 

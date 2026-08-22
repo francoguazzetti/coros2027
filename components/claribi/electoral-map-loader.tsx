@@ -4,7 +4,7 @@ import dynamic from "next/dynamic"
 
 // Leaflet no es compatible con SSR — importamos el componente sólo en el browser
 const ElectoralMap = dynamic(
-  () => import("@/components/coros/electoral-map").then(m => m.ElectoralMap),
+  () => import("@/components/claribi/electoral-map").then(m => m.ElectoralMap),
   {
     ssr: false,
     loading: () => (

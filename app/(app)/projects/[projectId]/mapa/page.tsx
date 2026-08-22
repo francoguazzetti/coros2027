@@ -2,10 +2,10 @@ import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUserProjects } from "@/lib/data"
 import { getUserRoleInProject } from "@/lib/actions/settings"
-import { CorosSidebar } from "@/components/coros/sidebar"
-import { AIPanel } from "@/components/coros/ai-panel"
+import { ClariBISidebar } from "@/components/claribi/sidebar"
+import { AIPanel } from "@/components/claribi/ai-panel"
 import { ShareButton } from "@/components/share/share-button"
-import { ElectoralMapLoader } from "@/components/coros/electoral-map-loader"
+import { ElectoralMapLoader } from "@/components/claribi/electoral-map-loader"
 
 const SUGGESTED_QUESTIONS = [
   { text: "¿De qué hablan los vecinos?" },
@@ -63,7 +63,7 @@ export default async function MapaPage({
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <CorosSidebar
+      <ClariBISidebar
         projectName={currentProject.name}
         navItems={navItems}
         currentView="mapa"

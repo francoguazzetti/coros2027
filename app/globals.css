@@ -38,11 +38,11 @@
   --sidebar-border: oklch(0.89 0.018 220);
   --sidebar-ring: oklch(0.46 0.07 215);
   
-  /* Coros-specific tokens */
-  --coros-positive: #5A8247;
-  --coros-neutral: #C8B89A;
-  --coros-negative: #B25252;
-  --coros-panel: #FFF9F5;
+  /* ClariBI-specific tokens */
+  --claribi-positive: #5A8247;
+  --claribi-neutral: #C8B89A;
+  --claribi-negative: #B25252;
+  --claribi-panel: #FFF9F5;
 }
 
 .dark {
@@ -79,11 +79,11 @@
   --sidebar-border: oklch(0.34 0.035 235);
   --sidebar-ring: oklch(0.66 0.09 210);
   
-  /* Coros-specific tokens */
-  --coros-positive: #3D6B2C;
-  --coros-neutral: oklch(0.32 0 0);
-  --coros-negative: #8B3333;
-  --coros-panel: oklch(0.25 0 0);
+  /* ClariBI-specific tokens */
+  --claribi-positive: #3D6B2C;
+  --claribi-neutral: oklch(0.32 0 0);
+  --claribi-negative: #8B3333;
+  --claribi-panel: oklch(0.25 0 0);
 }
 
 @theme inline {
@@ -117,10 +117,10 @@
   --radius-md: 3px;
   --radius-lg: calc(3px + 1px);
   --radius-xl: calc(3px + 2px);
-  --color-coros-positive: var(--coros-positive);
-  --color-coros-neutral: var(--coros-neutral);
-  --color-coros-negative: var(--coros-negative);
-  --color-coros-panel: var(--coros-panel);
+  --color-claribi-positive: var(--claribi-positive);
+  --color-claribi-neutral: var(--claribi-neutral);
+  --color-claribi-negative: var(--claribi-negative);
+  --color-claribi-panel: var(--claribi-panel);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

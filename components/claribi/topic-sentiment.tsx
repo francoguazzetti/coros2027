@@ -31,7 +31,7 @@ export function TopicSentiment({ topics, title = "Sentimiento por tema", subtitl
             {/* Positive bar */}
             <div className="h-3 bg-background transition-all duration-200 hover:shadow-md relative group cursor-pointer">
               <div
-                className="h-full bg-coros-positive rounded-[3px] transition-all duration-200"
+                className="h-full bg-claribi-positive rounded-[3px] transition-all duration-200"
                 style={{ width: pct(topic.positive) }}
               />
               <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
@@ -41,7 +41,7 @@ export function TopicSentiment({ topics, title = "Sentimiento por tema", subtitl
             {/* Negative bar */}
             <div className="h-3 bg-background transition-all duration-200 hover:shadow-md relative group cursor-pointer">
               <div
-                className="h-full bg-coros-negative rounded-[3px] transition-all duration-200"
+                className="h-full bg-claribi-negative rounded-[3px] transition-all duration-200"
                 style={{ width: pct(topic.negative) }}
               />
               <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-foreground rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity duration-200">
