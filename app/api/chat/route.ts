@@ -257,7 +257,7 @@ export async function POST(req: Request) {
   const startedAt = Date.now()
 
   const result = streamText({
-    model: MODEL_ID,
+    model: openai(MODEL_ID),
     system: `Sos un asistente de análisis de datos para la plataforma Coros.
 Tu ÚNICA fuente de información son las herramientas disponibles, que leen la base de datos del proyecto en tiempo real.
 
@@ -304,7 +304,7 @@ Proyecto actual ID: ${projectId}`,
       const { error } = await service.from("ai_usage_events").insert({
         user_id: user.id,
         project_id: projectId,
-    model: openai(MODEL_ID),
+        model: MODEL_ID,
         input_tokens: totalUsage.inputTokens ?? 0,
         output_tokens: totalUsage.outputTokens ?? 0,
         total_tokens:
