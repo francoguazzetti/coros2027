@@ -47,7 +47,7 @@ export default function SignUpPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm border border-border bg-card p-8">
         <div className="mb-8">
-          <h1 className="text-xl font-medium text-foreground">Coro</h1>
+          <h1 className="text-xl font-medium text-foreground">ClariBI</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Crear una cuenta nueva
           </p>

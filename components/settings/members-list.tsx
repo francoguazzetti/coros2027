@@ -135,7 +135,7 @@ export function MembersList({ projectId, members, canManage, onMembersChange }: 
             <p
               className={cn(
                 'text-sm',
-                message.type === 'success' ? 'text-coros-positive' : 'text-coros-negative'
+                message.type === 'success' ? 'text-claribi-positive' : 'text-claribi-negative'
               )}
             >
               {message.text}

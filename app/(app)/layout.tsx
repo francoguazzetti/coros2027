@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Coros',
+  title: 'ClariBI',
   description: 'Campaign intelligence platform',
 }
 

@@ -6,7 +6,7 @@ import { getAdminOverview } from '@/lib/actions/admin'
 import { AdminConsole } from '@/components/admin/admin-console'
 
 export const metadata = {
-  title: 'Administración · Coros',
+  title: 'Administración · ClariBI',
   description: 'Control de proyectos, miembros y accesos de la plataforma.',
 }
 

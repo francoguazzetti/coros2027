@@ -6,7 +6,7 @@ export default function SignUpSuccessPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm border border-border bg-card p-8 text-center">
         <div className="mb-6">
-          <h1 className="text-xl font-medium text-foreground">Coro</h1>
+          <h1 className="text-xl font-medium text-foreground">ClariBI</h1>
         </div>
 
         <div className="space-y-4">

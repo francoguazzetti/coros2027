@@ -14,9 +14,9 @@ import { cn } from '@/lib/utils'
 type Tab = 'projects' | 'members'
 
 const FRESHNESS_DOT: Record<ReturnType<typeof freshness>, string> = {
-  fresh: 'bg-coros-positive',
-  aging: 'bg-coros-neutral',
-  stale: 'bg-coros-negative',
+  fresh: 'bg-claribi-positive',
+  aging: 'bg-claribi-neutral',
+  stale: 'bg-claribi-negative',
   empty: 'bg-border',
 }
 
