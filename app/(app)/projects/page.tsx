@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ShieldCheck } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserProjects } from '@/lib/data'
@@ -25,11 +26,14 @@ export default async function ProjectsPage() {
       user.email?.split('@')[0] ??
       'Usuario'
 
+    // 'member' is the lowest global role allowed by the profiles_role_check
+    // constraint ('admin' | 'creator' | 'member'). 'viewer' is a *project*
+    // role and would make this upsert fail.
     await supabase.from('profiles').upsert({
       id: user.id,
       email: user.email,
       full_name: fallbackName,
-      role: 'viewer',
+      role: 'member',
       can_create_projects: false,
     })
   }
@@ -37,7 +41,7 @@ export default async function ProjectsPage() {
   const profile = profileData ?? {
     full_name: user.email?.split('@')[0] ?? 'Usuario',
     email: user.email ?? '',
-    role: 'viewer',
+    role: 'member',
     can_create_projects: false,
   }
 
@@ -52,14 +56,25 @@ export default async function ProjectsPage() {
             Bienvenido, {profile.full_name ?? user.email}
           </p>
         </div>
-        <form action={logout}>
-          <button
-            type="submit"
-            className="rounded border border-border bg-transparent px-4 py-2 text-sm text-foreground hover:bg-muted transition-all duration-200 hover:scale-102 active:scale-98"
-          >
-            Salir
-          </button>
-        </form>
+        <div className="flex items-center gap-2">
+          {profile.role === 'admin' && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-2 rounded border border-border bg-transparent px-4 py-2 text-sm text-foreground hover:bg-muted transition-all duration-200 hover:scale-102 active:scale-98"
+            >
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+              Panel de admin
+            </Link>
+          )}
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded border border-border bg-transparent px-4 py-2 text-sm text-foreground hover:bg-muted transition-all duration-200 hover:scale-102 active:scale-98"
+            >
+              Salir
+            </button>
+          </form>
+        </div>
       </div>
 
       {projects.length === 0 ? (
