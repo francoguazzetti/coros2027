@@ -30,7 +30,7 @@ import {
   type GlobalRole,
   type ProjectRole,
 } from '@/lib/actions/admin'
-import { initialsOf, absoluteDate } from './utils'
+import { initialsOf, absoluteDate, relativeTime } from './utils'
 import {
   GLOBAL_ROLE_HINT,
   GLOBAL_ROLE_LABEL,
@@ -143,6 +143,44 @@ export function MemberDetailSheet({
                     }
                   />
                 </div>
+              </section>
+
+              <section className="flex flex-col gap-3">
+                <div className="flex items-baseline justify-between">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Consumo del chat IA
+                  </h3>
+                  <span className="text-xs text-muted-foreground">
+                    {member.aiUsage.lastUsedAt
+                      ? `último uso ${relativeTime(member.aiUsage.lastUsedAt)}`
+                      : 'sin uso'}
+                  </span>
+                </div>
+                {member.aiUsage.events === 0 ? (
+                  <p className="rounded border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                    Todavía no usó el chat de IA.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-px overflow-hidden rounded border border-border bg-border">
+                    {[
+                      ['Consultas', member.aiUsage.events.toLocaleString('es-AR')],
+                      ['Tokens totales', member.aiUsage.totalTokens.toLocaleString('es-AR')],
+                      ['Entrada', member.aiUsage.inputTokens.toLocaleString('es-AR')],
+                      ['Salida', member.aiUsage.outputTokens.toLocaleString('es-AR')],
+                      ['Últimos 30 días', member.aiUsage.tokens30d.toLocaleString('es-AR')],
+                      ['Cacheados', member.aiUsage.cachedInputTokens.toLocaleString('es-AR')],
+                    ].map(([label, value]) => (
+                      <div key={label} className="bg-card px-3 py-2.5">
+                        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                          {label}
+                        </p>
+                        <p className="mt-0.5 font-mono text-sm tabular-nums text-foreground">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </section>
 
               <section className="flex flex-col gap-3">

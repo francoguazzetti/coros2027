@@ -25,6 +25,18 @@ export interface AdminProject {
   lastDataUpdate: string | null
 }
 
+/** Aggregated AI chat consumption for one member. */
+export interface AdminAiUsage {
+  events: number
+  inputTokens: number
+  outputTokens: number
+  totalTokens: number
+  cachedInputTokens: number
+  tokens30d: number
+  events30d: number
+  lastUsedAt: string | null
+}
+
 export interface AdminMember {
   id: string
   email: string | null
@@ -33,6 +45,7 @@ export interface AdminMember {
   can_create_projects: boolean
   created_at: string
   memberships: { membershipId: string; projectId: string; projectName: string; role: string }[]
+  aiUsage: AdminAiUsage
 }
 
 export interface AdminOverview {
@@ -45,6 +58,9 @@ export interface AdminOverview {
     rows: number
     unassignedMembers: number
     lastDataUpdate: string | null
+    aiTokens: number
+    aiTokens30d: number
+    aiEvents: number
   }
 }
 
@@ -78,7 +94,7 @@ function maxDate(...values: (string | null | undefined)[]) {
 export async function getAdminOverview(): Promise<AdminOverview> {
   const { supabase } = await requireAdmin()
 
-  const [projectsRes, profilesRes, membersRes, statsRes] = await Promise.all([
+  const [projectsRes, profilesRes, membersRes, statsRes, usageRes] = await Promise.all([
     supabase
       .from('projects')
       .select('id, name, description, created_at, updated_at, created_by, share_enabled, share_role')
@@ -89,6 +105,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
       .order('created_at', { ascending: true }),
     supabase.from('project_members').select('id, project_id, user_id, role'),
     supabase.rpc('admin_project_stats'),
+    supabase.rpc('admin_ai_usage_by_user'),
   ])
 
   if (projectsRes.error) throw projectsRes.error
@@ -99,6 +116,34 @@ export async function getAdminOverview(): Promise<AdminOverview> {
   const rawProfiles = profilesRes.data ?? []
   const rawMembers = membersRes.data ?? []
   const rawStats = statsRes.error ? [] : ((statsRes.data as any[]) ?? [])
+  const rawUsage = usageRes.error ? [] : ((usageRes.data as any[]) ?? [])
+
+  const usageByUser = new Map<string, AdminAiUsage>(
+    rawUsage.map((u) => [
+      u.user_id as string,
+      {
+        events: Number(u.events ?? 0),
+        inputTokens: Number(u.input_tokens ?? 0),
+        outputTokens: Number(u.output_tokens ?? 0),
+        totalTokens: Number(u.total_tokens ?? 0),
+        cachedInputTokens: Number(u.cached_input_tokens ?? 0),
+        tokens30d: Number(u.tokens_30d ?? 0),
+        events30d: Number(u.events_30d ?? 0),
+        lastUsedAt: u.last_used_at ?? null,
+      },
+    ])
+  )
+
+  const emptyUsage: AdminAiUsage = {
+    events: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    totalTokens: 0,
+    cachedInputTokens: 0,
+    tokens30d: 0,
+    events30d: 0,
+    lastUsedAt: null,
+  }
 
   const statsByProject = new Map(rawStats.map((s) => [s.project_id as string, s]))
   const projectNames = new Map(rawProjects.map((p) => [p.id, p.name as string]))
@@ -128,7 +173,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
     id: profile.id,
     email: profile.email,
     full_name: profile.full_name,
-    role: (profile.role ?? 'viewer') as GlobalRole,
+    role: (profile.role ?? 'member') as GlobalRole,
     can_create_projects: Boolean(profile.can_create_projects),
     created_at: profile.created_at,
     memberships: rawMembers
@@ -140,6 +185,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
         role: m.role,
       }))
       .sort((a, b) => a.projectName.localeCompare(b.projectName)),
+    aiUsage: usageByUser.get(profile.id) ?? emptyUsage,
   }))
 
   return {
@@ -152,6 +198,9 @@ export async function getAdminOverview(): Promise<AdminOverview> {
       rows: projects.reduce((sum, p) => sum + p.rows.total, 0),
       unassignedMembers: members.filter((m) => m.memberships.length === 0).length,
       lastDataUpdate: maxDate(...projects.map((p) => p.lastDataUpdate)),
+      aiTokens: members.reduce((sum, m) => sum + m.aiUsage.totalTokens, 0),
+      aiTokens30d: members.reduce((sum, m) => sum + m.aiUsage.tokens30d, 0),
+      aiEvents: members.reduce((sum, m) => sum + m.aiUsage.events, 0),
     },
   }
 }

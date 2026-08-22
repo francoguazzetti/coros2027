@@ -1,7 +1,9 @@
-import { streamText, convertToModelMessages, tool, stepCountIs } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { streamText, convertToModelMessages, tool, stepCountIs, consumeStream } from "ai"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
 import { z } from "zod"
+
+const MODEL_ID = "gpt-4o"
 
 export async function POST(req: Request) {
   const supabase = await createClient()
@@ -251,8 +253,10 @@ export async function POST(req: Request) {
     }),
   }
 
+  const startedAt = Date.now()
+
   const result = streamText({
-    model: openai("gpt-4o"),
+    model: MODEL_ID,
     system: `Sos un asistente de análisis de datos para la plataforma Coros.
 Tu ÚNICA fuente de información son las herramientas disponibles, que leen la base de datos del proyecto en tiempo real.
 
@@ -287,7 +291,42 @@ Proyecto actual ID: ${projectId}`,
     tools,
     toolChoice: "auto",
     stopWhen: stepCountIs(10),
+    onFinish: async ({ totalUsage, finishReason, steps }) => {
+      // Written with the service role so a client cannot forge or suppress
+      // its own token accounting. Never let this break the chat response.
+      const service = createServiceClient()
+      if (!service) {
+        console.log("[v0] ai_usage_events skipped: no service role key")
+        return
+      }
+
+      const { error } = await service.from("ai_usage_events").insert({
+        user_id: user.id,
+        project_id: projectId,
+        model: MODEL_ID,
+        input_tokens: totalUsage.inputTokens ?? 0,
+        output_tokens: totalUsage.outputTokens ?? 0,
+        total_tokens:
+          totalUsage.totalTokens ??
+          (totalUsage.inputTokens ?? 0) + (totalUsage.outputTokens ?? 0),
+        cached_input_tokens: totalUsage.inputTokenDetails?.cacheReadTokens ?? 0,
+        reasoning_tokens: totalUsage.outputTokenDetails?.reasoningTokens ?? 0,
+        steps: steps.length,
+        finish_reason: finishReason,
+        latency_ms: Date.now() - startedAt,
+      })
+
+      if (error) console.log("[v0] ai_usage_events insert failed:", error.message)
+    },
   })
 
-  return result.toUIMessageStreamResponse()
+  // consumeSseStream keeps onFinish running even if the user closes the tab
+  // mid-stream, so we still bill the tokens the model already produced.
+  return result.toUIMessageStreamResponse({
+    consumeSseStream: ({ stream }) =>
+      consumeStream({
+        stream,
+        onError: (e) => console.log("[v0] usage stream consume error:", e),
+      }),
+  })
 }

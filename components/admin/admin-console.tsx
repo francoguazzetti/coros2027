@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import type { AdminMember, AdminOverview, AdminProject } from '@/lib/actions/admin'
 import { MemberDetailSheet } from './member-detail-sheet'
 import { ProjectDetailSheet } from './project-detail-sheet'
-import { freshness, initialsOf, relativeTime } from './utils'
+import { compactNumber, freshness, initialsOf, relativeTime } from './utils'
 import { globalRoleLabel, projectRoleLabel } from '@/lib/roles'
 import { cn } from '@/lib/utils'
 
@@ -82,6 +82,11 @@ export function AdminConsole({
       value: String(totals.unassignedMembers),
       hint: totals.unassignedMembers > 0 ? 'requieren acceso' : 'todo en orden',
     },
+    {
+      label: 'Tokens IA 30d',
+      value: compactNumber(totals.aiTokens30d),
+      hint: `${compactNumber(totals.aiTokens)} histórico · ${totals.aiEvents} consultas`,
+    },
   ]
 
   return (
@@ -89,7 +94,7 @@ export function AdminConsole({
       {/* Signature element: the platform vitals strip */}
       <section
         aria-label="Resumen de la plataforma"
-        className="grid grid-cols-2 divide-border overflow-hidden rounded border border-border bg-card sm:grid-cols-3 lg:grid-cols-5 lg:divide-x"
+        className="grid grid-cols-2 divide-border overflow-hidden rounded border border-border bg-card sm:grid-cols-3 lg:grid-cols-6 lg:divide-x"
       >
         {stats.map((stat) => (
           <div key={stat.label} className="border-b border-border px-4 py-3 lg:border-b-0">
@@ -263,7 +268,8 @@ function MembersTable({
             <Th className="w-[34%]">Persona</Th>
             <Th>Rol</Th>
             <Th>Puede crear</Th>
-            <Th className="w-[34%]">Proyectos</Th>
+            <Th className="w-[26%]">Proyectos</Th>
+            <Th className="text-right">Tokens IA 30d</Th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -330,6 +336,21 @@ function MembersTable({
                       </span>
                     )}
                   </span>
+                )}
+              </Td>
+              <Td className="text-right">
+                {member.aiUsage.events === 0 ? (
+                  <span className="text-xs text-muted-foreground">—</span>
+                ) : (
+                  <div className="flex flex-col items-end">
+                    <span className="font-mono tabular-nums text-foreground">
+                      {compactNumber(member.aiUsage.tokens30d)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {member.aiUsage.events30d} consulta
+                      {member.aiUsage.events30d === 1 ? '' : 's'}
+                    </span>
+                  </div>
                 )}
               </Td>
             </tr>
